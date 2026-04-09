@@ -1,0 +1,54 @@
+<div class="home-container">
+  <aside class="sidebar">
+    <div class="user-box">
+      <div class="user-icon">
+        <span>👤</span>
+      </div>
+      <span class="user-name">Administrador</span>
+    </div>
+
+    <div class="menu-title">Menu</div>
+
+    <div class="menu-buttons">
+      <button (click)="irParaUsuarios()">Gestão de Usuários</button>
+      <button>Tipos de Demanda</button>
+      <button>Gerenciar Veículos</button>
+      <button>Gerenciar Locais</button>
+      <button>Relatórios</button>
+    </div>
+
+    <div class="logout-container">
+      <button class="logout-button" (click)="logout()">Sair</button>
+    </div>
+
+
+
+  </aside>
+
+  <main class="content">
+    <div class="top-bar"></div>
+
+    <div class="center-content">
+      <div class="check-icon">✓</div>
+
+      <div class="text-box">
+        <h1>Selecione uma opção no menu inicial</h1>
+        <div class="watermark">ON DEMANDAS</div>
+        <p>Ou clique no botão de ajuda<br>no canto inferior direito</p>
+      </div>
+    </div>
+
+    <div class="map-floating">
+      <iframe
+        width="260"
+        height="200"
+        style="border:0; border-radius: 2px;"
+        loading="lazy"
+        allowfullscreen
+        src="https://maps.google.com/maps?q=Toledo%20Parana%20Brasil&output=embed">
+      </iframe>
+    </div>
+
+    <button class="help-button">?</button>
+  </main>
+</div>

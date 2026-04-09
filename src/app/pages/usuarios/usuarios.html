@@ -1,0 +1,136 @@
+<div class="usuarios-page">
+  <div class="left-bar">
+    <button class="side-arrow">❯</button>
+  </div>
+
+  <div class="main-content">
+    <div class="top-header">
+      <button class="home-button" (click)="irParaHome()">⌂</button>
+    </div>
+
+    <div class="filters-area">
+      <div class="search-row">
+        <input
+          type="text"
+          placeholder="Insira um valor válido"
+          class="search-input"
+        />
+        <button class="search-button">⌕</button>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Aplicar Filtros:</span>
+
+        <button class="filter-button">
+          Matrícula
+          <span class="filter-icon">▼</span>
+        </button>
+
+        <button class="filter-button">
+          Status
+          <span class="filter-icon">▼</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LISTA DE USUÁRIOS -->
+    <div class="content-area">
+      <div class="users-list">
+
+        <div class="user-card" *ngFor="let usuario of usuarios">
+
+          <div class="card-left">
+
+            <div class="avatar">👤</div>
+
+            <div class="user-info">
+              <h2>{{ usuario.nome }}</h2>
+              <p>{{ usuario.email }}</p>
+            </div>
+
+          </div>
+
+          <div class="card-right">
+            <div class="top-info">
+              <span class="perfil-icon">⚒</span>
+
+              <span class="perfil-text">
+                {{ usuario.atribuicao }}
+              </span>
+
+              <span class="status-text">
+                {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+
+            <div class="phone-info">
+              <span class="phone-icon">📞</span>
+              <span>{{ usuario.telefone }}</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="action-area">
+        <button class="create-user-btn" (click)="abrirModalCriarUsuario()">
+          <span class="btn-text">Criar Usuário</span>
+          <span class="btn-plus">+</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal-overlay" *ngIf="modalAberto">
+  <div class="modal-container">
+
+    <div class="modal-header">
+      <h2>Criar Usuário</h2>
+      <button class="close-btn" (click)="fecharModalCriarUsuario()">✖</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- FORMULÁRIO -->
+      <div class="modal-right">
+
+        <div class="form-group">
+          <label>Nome de Usuário</label>
+          <input type="text" [(ngModel)]="novoUsuario.nome" />
+        </div>
+
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" [(ngModel)]="novoUsuario.telefone" />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="novoUsuario.email" />
+        </div>
+
+        <div class="form-group small">
+          <label>Função/Atribuição</label>
+          <select [(ngModel)]="novoUsuario.atribuicao">
+            <option [ngValue]="Atribuicao.SOLICITANTE">Solicitante</option>
+            <option [ngValue]="Atribuicao.EXECUTOR">Executor</option>
+            <option [ngValue]="Atribuicao.ADMINISTRADOR">Administrador</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="save-btn" (click)="criarUsuario()">
+        Criar Usuário
+      </button>
+    </div>
+
+  </div>
+</div>

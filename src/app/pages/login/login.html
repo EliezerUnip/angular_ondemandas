@@ -1,0 +1,51 @@
+<div class="login-page">
+  <div class="login-container">
+
+    <h2 class="title">On Demandas</h2>
+
+    <!-- DOMÍNIO -->
+    <div class="input-group center">
+      <label>Domínio</label>
+      <input
+        type="text"
+        [(ngModel)]="dominio"
+        placeholder="Ex: unipar">
+    </div>
+
+    <hr>
+
+    <!-- EMAIL -->
+    <div class="input-group">
+      <label>Email</label>
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="seu@email.com">
+    </div>
+
+    <!-- SENHA -->
+    <div class="input-group">
+      <label>Senha</label>
+      <input
+        type="password"
+        [(ngModel)]="senha"
+        placeholder="Digite sua senha">
+    </div>
+
+    <!-- OPÇÕES -->
+    <div class="options">
+      <label class="checkbox">
+        <input type="checkbox">
+        Manter conectado
+      </label>
+
+      <span class="forgot">Esqueci minha senha</span>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="actions">
+      <button (click)="fazerLogin()">Acessar</button>
+    </div>
+
+  </div>
+</div>
