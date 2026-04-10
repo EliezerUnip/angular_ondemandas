@@ -113,9 +113,24 @@
           <input type="email" [(ngModel)]="novoUsuario.email" />
         </div>
 
+        <div class="form-group">
+          <label>Nome de Usuário</label>
+          <input type="text" [(ngModel)]="novoUsuario.nome" required />
+        </div>
+
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" [(ngModel)]="novoUsuario.telefone" required />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="novoUsuario.email" required />
+        </div>
+
         <div class="form-group small">
           <label>Função/Atribuição</label>
-          <select [(ngModel)]="novoUsuario.atribuicao">
+          <select [(ngModel)]="novoUsuario.atribuicao" required>
             <option [ngValue]="Atribuicao.SOLICITANTE">Solicitante</option>
             <option [ngValue]="Atribuicao.EXECUTOR">Executor</option>
             <option [ngValue]="Atribuicao.ADMINISTRADOR">Administrador</option>

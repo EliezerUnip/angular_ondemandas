@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,6 +17,7 @@ export class Usuarios implements OnInit {
   constructor(
     private router: Router,
     private usuarioService: UsuarioService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   modalAberto = false;
@@ -52,6 +53,7 @@ export class Usuarios implements OnInit {
     this.usuarioService.listar().subscribe({
       next: (dados) => {
         this.usuarios = dados;
+        this.cdr.detectChanges();
       },
       error: () => {
         alert('Erro ao carregar usuários');
@@ -60,6 +62,31 @@ export class Usuarios implements OnInit {
   }
 
   criarUsuario() {
+    if (!this.novoUsuario.nome?.trim()) {
+      alert('O nome é obrigatório');
+      return;
+    }
+
+    if (!this.novoUsuario.telefone?.trim()) {
+      alert('O telefone é obrigatório');
+      return;
+    }
+
+    if (!this.novoUsuario.email?.trim()) {
+      alert('O email é obrigatório');
+      return;
+    }
+
+    if (!this.novoUsuario.email.includes('@')) {
+      alert('Informe um email válido');
+      return;
+    }
+
+    if (!this.novoUsuario.atribuicao) {
+      alert('A atribuição é obrigatória');
+      return;
+    }
+
     this.usuarioService.criar(this.novoUsuario).subscribe({
       next: () => {
         alert('Usuário criado com sucesso! ✅');
@@ -75,7 +102,12 @@ export class Usuarios implements OnInit {
 
         this.modalAberto = false;
       },
-      error: () => {
+      error: (erro) => {
+        if (erro?.error?.message) {
+          alert(erro.error.message);
+          return;
+        }
+
         alert('Erro ao criar usuário ❌');
       },
     });

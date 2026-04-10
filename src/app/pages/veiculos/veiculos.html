@@ -1,0 +1,213 @@
+<div class="veiculos-page">
+  <div class="left-bar">
+    <button class="side-arrow">❯</button>
+  </div>
+
+  <div class="main-content">
+    <div class="top-header">
+      <button class="home-button" (click)="irParaHome()">⌂</button>
+    </div>
+
+    <div class="filters-area">
+      <div class="search-row">
+        <input
+          type="text"
+          placeholder="Insira um valor válido"
+          class="search-input"
+        />
+        <button class="search-button">⌕</button>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Aplicar Filtros:</span>
+
+        <button class="filter-button">
+          Matrícula
+          <span class="filter-icon">▼</span>
+        </button>
+
+        <button class="filter-button">
+          Lugares
+          <span class="filter-icon">▼</span>
+        </button>
+
+        <button class="filter-button">
+          Status
+          <span class="filter-icon">▼</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="veiculos-list">
+        <div
+          class="veiculo-card"
+          *ngFor="let veiculo of veiculos"
+          (click)="abrirModalDetalhes(veiculo)"
+        >
+          <div class="card-left">
+            <div class="vehicle-avatar">🚗</div>
+          </div>
+
+          <div class="card-center">
+            <h2>{{ veiculo.marcaVeiculo }}</h2>
+            <p>{{ veiculo.modeloVeiculo }}</p>
+          </div>
+
+          <div class="card-right">
+            <div class="status-info">
+              Status:
+              {{ veiculo.statusVeiculo ? 'Disponível' : 'Inativo' }}
+            </div>
+
+            <div class="lugares-info">
+              <span>👥 Lugares</span>
+              <strong>{{ veiculo.quantidadeLugares }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-area">
+        <button class="create-btn" (click)="abrirModalCriar()">
+          <span class="btn-text">Adicionar Veículo</span>
+          <span class="btn-plus">+</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalCriarAberto">
+  <div class="modal-container modal-criar">
+    <div class="modal-header">
+      <h2>Adicionar Veículo</h2>
+      <button class="close-btn" (click)="fecharModalCriar()">✖</button>
+    </div>
+
+    <div class="modal-body criar-layout">
+      <div class="modal-left">
+        <label>Imagem do Veículo</label>
+        <div class="vehicle-preview">🚗</div>
+      </div>
+
+      <div class="modal-right">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Marca</label>
+            <select [(ngModel)]="marcaSelecionadaId" (change)="aoSelecionarMarca()">
+              <option value="">Selecione a marca</option>
+              <option *ngFor="let marca of marcas" [value]="marca.codigo">
+                {{ marca.nome }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Modelo</label>
+            <select [(ngModel)]="novoVeiculo.modeloVeiculo">
+              <option value="">Selecione o modelo</option>
+              <option *ngFor="let modelo of modelos" [value]="modelo.nome">
+                {{ modelo.nome }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Ano</label>
+            <input type="number" [(ngModel)]="novoVeiculo.anoVeiculo" />
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <input type="text" value="Disponível" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Placa</label>
+            <input type="text" [(ngModel)]="novoVeiculo.placaVeiculo" />
+          </div>
+
+          <div class="form-group">
+            <label>KM atual</label>
+            <input type="number" [(ngModel)]="novoVeiculo.kmAtual" />
+          </div>
+
+          <div class="form-group">
+            <label>Quantidade de lugares</label>
+            <input type="number" [(ngModel)]="novoVeiculo.quantidadeLugares" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="save-btn" (click)="criarVeiculo()">Cadastrar Veículo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalDetalhesAberto && veiculoSelecionado">
+  <div class="modal-container modal-detalhes">
+    <div class="modal-header">
+      <h2>Detalhes do Veículo</h2>
+      <button class="close-btn" (click)="fecharModalDetalhes()">✖</button>
+    </div>
+
+    <div class="modal-body detalhes-layout">
+      <div class="modal-left">
+        <div class="vehicle-preview large">🚗</div>
+
+        <div class="vehicle-status">
+          <span>Status - {{ veiculoSelecionado.statusVeiculo ? 'Disponível' : 'Inativo' }}</span>
+          <span
+            class="status-dot"
+            [ngClass]="veiculoSelecionado.statusVeiculo ? 'ativo' : 'inativo'"
+          ></span>
+        </div>
+      </div>
+
+      <div class="modal-right">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Marca</label>
+            <input type="text" [value]="veiculoSelecionado.marcaVeiculo" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Modelo</label>
+            <input type="text" [value]="veiculoSelecionado.modeloVeiculo" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Ano</label>
+            <input type="text" [value]="veiculoSelecionado.anoVeiculo" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Placa</label>
+            <input type="text" [value]="veiculoSelecionado.placaVeiculo" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Quilometragem atual</label>
+            <input type="text" [value]="veiculoSelecionado.kmAtual" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Quantidade de lugares</label>
+            <input type="text" [value]="veiculoSelecionado.quantidadeLugares" readonly />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-space-between">
+      <button class="status-btn" (click)="alterarStatusVeiculo()">
+        {{ veiculoSelecionado.statusVeiculo ? 'Inativar Veículo' : 'Ativar Veículo' }}
+      </button>
+
+      <button class="save-btn disabled-btn" disabled>Alterar Veículo</button>
+    </div>
+  </div>
+</div>

@@ -15,12 +15,17 @@ export class Home {
     this.router.navigate(['/usuarios']);
   }
 
-  logout() {
-    // se usar token futuramente
-    localStorage.clear();
+  irParaTiposDemandas() {
+    this.router.navigate(['/tipos-demandas']);
+  }
 
-    // redireciona para login
+  logout() {
+    localStorage.clear();
     this.router.navigate(['/login']);
+  }
+  
+  irParaVeiculos() {
+    this.router.navigate(['/veiculos']);
   }
 
   enderecoMapa = 'Toledo PR';

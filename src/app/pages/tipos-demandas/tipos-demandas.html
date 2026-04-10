@@ -1,0 +1,134 @@
+<div class="tipos-page">
+  <div class="left-bar">
+    <button class="side-arrow">❯</button>
+  </div>
+
+  <div class="main-content">
+    <div class="top-header">
+      <button class="home-button" (click)="irParaHome()">⌂</button>
+    </div>
+
+    <div class="filters-area">
+      <div class="search-row">
+        <input
+          type="text"
+          placeholder="Insira um valor válido"
+          class="search-input"
+        />
+        <button class="search-button">⌕</button>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Aplicar Filtros:</span>
+
+        <button class="filter-button">
+          Descrição
+          <span class="filter-icon">▼</span>
+        </button>
+
+        <button class="filter-button">
+          Status
+          <span class="filter-icon">▼</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="tipos-list">
+        <div
+          class="tipo-card"
+          *ngFor="let tipo of tiposDemandas"
+          (click)="abrirModalVisualizar(tipo)"
+        >
+          <div class="tipo-descricao">
+            {{ tipo.tipoDemanda }}
+          </div>
+
+          <div class="tipo-status-area">
+            <span class="status-text">
+              Status: {{ tipo.ativo ? 'Ativa' : 'Inativa' }}
+            </span>
+
+            <span
+              class="status-dot"
+              [ngClass]="tipo.ativo ? 'ativo' : 'inativo'"
+            ></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-area">
+        <button class="create-tipo-btn" (click)="abrirModalCriar()">
+          <span class="btn-text">Adicionar Tipo</span>
+          <span class="btn-plus">+</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CRIAR -->
+<div class="modal-overlay" *ngIf="modalCriarAberto">
+  <div class="modal-container modal-criar">
+    <div class="modal-header">
+      <h2>Criar tipo de demanda</h2>
+      <button class="close-btn" (click)="fecharModalCriar()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-right full-width">
+        <div class="form-group">
+          <label>Descrição do tipo</label>
+          <input type="text" [(ngModel)]="novoTipo.tipoDemandaDescricao" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="save-btn" (click)="criarTipoDemanda()">
+        Criar Tipo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VISUALIZAR -->
+<div class="modal-overlay" *ngIf="modalVisualizarAberto && tipoSelecionado">
+  <div class="modal-container modal-visualizar">
+    <div class="modal-header">
+      <h2>Visualizar Tipo</h2>
+      <button class="close-btn" (click)="fecharModalVisualizar()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-right full-width">
+        <div class="form-group">
+          <label>Descrição do tipo</label>
+          <input type="text" [value]="tipoSelecionado.tipoDemanda" readonly />
+        </div>
+
+        <div class="status-box">
+          <span class="status-box-label">Status:</span>
+
+          <div class="status-box-right">
+            <span>{{ tipoSelecionado.ativo ? 'Ativo' : 'Inativo' }}</span>
+            <span
+              class="status-dot"
+              [ngClass]="tipoSelecionado.ativo ? 'ativo' : 'inativo'"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer modal-footer-space-between">
+      <button class="status-btn" (click)="alterarStatusTipoDemanda()">
+        {{ tipoSelecionado.ativo ? 'Inativar' : 'Ativar' }}
+      </button>
+
+      <button class="save-btn disabled-btn" disabled>
+        Alterar
+      </button>
+    </div>
+  </div>
+</div>
