@@ -185,7 +185,11 @@
       </div>
 
       <div class="action-area">
-        <button class="create-demanda-btn" (click)="abrirModalCriar()">
+        <button
+          class="create-demanda-btn"
+          *ngIf="podeCriarDemanda()"
+          (click)="abrirModalCriar()"
+        >
           <span>Nova Demanda</span>
           <span class="material-icons">add</span>
         </button>
@@ -421,7 +425,10 @@
 
     </div>
 
-    <div class="capture-box" *ngIf="demandaSelecionada.status === 'PENDENTE'">
+    <div
+      class="capture-box"
+      *ngIf="demandaSelecionada.status === 'PENDENTE' && ehAdministrador()"
+    >
 
       <div class="form-group">
         <label for="executor">Selecionar executor</label>

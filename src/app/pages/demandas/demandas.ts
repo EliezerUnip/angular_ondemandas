@@ -118,12 +118,13 @@ export class Demandas implements OnInit {
 
   carregarDemandas(): void {
     this.demandasService.listar().subscribe({
-      next: (dados) => {this.demandas = this.filtrarDemandasPorPerfil(dados);
+      next: (dados) => {
+        this.demandas = this.filtrarDemandasPorPerfil(dados);
         this.aplicarFiltros();
 
         if (this.demandaIdAbrirAutomaticamente) {
           const demanda = this.demandas.find(
-            (d) => d.id === this.demandaIdAbrirAutomaticamente
+            (item) => item.id === this.demandaIdAbrirAutomaticamente
           );
 
           if (demanda) {
@@ -131,7 +132,15 @@ export class Demandas implements OnInit {
           }
 
           this.demandaIdAbrirAutomaticamente = null;
+
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true,
+          });
         }
+
+        this.cdr.detectChanges();
       },
       error: () => {
         this.exibirMensagem('Erro ao carregar demandas.', 'erro');
