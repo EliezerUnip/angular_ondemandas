@@ -1,0 +1,473 @@
+<div class="locais-page">
+
+  <div
+    class="toast-message"
+    *ngIf="mensagemSistema"
+    [class.toast-success]="tipoMensagem === 'sucesso'"
+    [class.toast-error]="tipoMensagem === 'erro'"
+  >
+    <span class="material-icons">
+      {{ tipoMensagem === 'sucesso' ? 'check_circle' : 'error' }}
+    </span>
+    {{ mensagemSistema }}
+  </div>
+
+  <div class="left-bar">
+    <button class="side-arrow">❯</button>
+  </div>
+
+  <div class="main-content">
+
+    <div class="top-header">
+      <button class="home-button" (click)="irParaHome()">
+        <span class="material-icons">home</span>
+      </button>
+    </div>
+
+    <div class="filters-area">
+
+      <div class="search-row">
+
+        <div class="search-box">
+          <span class="material-icons">search</span>
+
+          <input
+            type="text"
+            placeholder="Buscar por nome, cidade ou endereço"
+            class="search-input"
+            [(ngModel)]="termoBusca"
+            (input)="aplicarFiltros()"
+          />
+        </div>
+
+        <div class="filter-menu-area">
+          <button class="filter-main-btn" type="button" (click)="alternarMenuFiltros()">
+            <span class="material-icons">filter_list</span>
+            Filtros
+            <span class="material-icons">
+              {{ menuFiltrosAberto ? 'expand_less' : 'expand_more' }}
+            </span>
+          </button>
+
+          <div class="filter-dropdown" *ngIf="menuFiltrosAberto">
+
+            <button type="button" class="filter-option" (click)="ordenarPorNome()">
+              <span class="material-icons">sort_by_alpha</span>
+              Ordenar por nome
+            </button>
+
+            <button type="button" class="filter-option" (click)="ordenarPorCidade()">
+              <span class="material-icons">location_city</span>
+              Ordenar por cidade
+            </button>
+
+            <button type="button" class="filter-option" (click)="agruparPorStatus()">
+              <span class="material-icons">fact_check</span>
+              Agrupar por status
+            </button>
+
+            <div class="filter-select-area">
+              <label>Status</label>
+
+              <select
+                [(ngModel)]="statusSelecionado"
+                (change)="filtrarPorStatus()"
+              >
+                <option value="">Todos</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+              </select>
+            </div>
+
+            <button type="button" class="filter-option clear" (click)="limparFiltros()">
+              <span class="material-icons">restart_alt</span>
+              Limpar filtros
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="filters-summary">
+
+        <span class="summary-pill" *ngIf="ordenacaoNomeAtiva">
+          <span class="material-icons">sort_by_alpha</span>
+          Nome A-Z
+        </span>
+
+        <span class="summary-pill" *ngIf="ordenacaoCidadeAtiva">
+          <span class="material-icons">location_city</span>
+          Cidade A-Z
+        </span>
+
+        <span class="summary-pill" *ngIf="agrupamentoStatusAtivo">
+          <span class="material-icons">fact_check</span>
+          Agrupado por status
+        </span>
+
+        <span class="summary-pill" *ngIf="statusSelecionado">
+          <span class="material-icons">verified</span>
+          {{ statusSelecionado === 'ativo' ? 'Ativos' : 'Inativos' }}
+        </span>
+
+      </div>
+
+    </div>
+
+    <div class="content-area">
+
+      <div class="locais-list">
+
+        <div class="empty-state" *ngIf="locaisFiltrados.length === 0">
+          <span class="material-icons">search_off</span>
+          <h3>Nenhum local encontrado</h3>
+          <p>Tente buscar por outro nome, cidade, endereço ou limpe os filtros.</p>
+        </div>
+
+        <div
+          class="local-card"
+          *ngFor="let local of locaisFiltrados"
+          (click)="abrirModalDetalhes(local)"
+        >
+
+          <div class="card-left">
+            <div class="local-icon">
+              <span class="material-icons">location_on</span>
+            </div>
+
+            <div class="local-info">
+              <h2>{{ local.nomeLocal }}</h2>
+
+              <p>
+                <span class="material-icons">location_city</span>
+                {{ local.cidade || 'Cidade não informada' }}
+              </p>
+
+              <p>
+                <span class="material-icons">map</span>
+                {{ local.endereco }}
+              </p>
+
+              <p>
+                <span class="material-icons">my_location</span>
+                {{ local.latitude }}, {{ local.longitude }}
+              </p>
+            </div>
+          </div>
+
+          <div class="card-right">
+
+            <span
+              class="status-badge"
+              [class.status-active]="local.ativo"
+              [class.status-inactive]="!local.ativo"
+            >
+              <span class="material-icons">
+                {{ local.ativo ? 'check_circle' : 'cancel' }}
+              </span>
+
+              {{ local.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+
+            <span class="material-icons open-icon">chevron_right</span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="action-area">
+        <button class="create-local-btn" (click)="abrirModalCriar()">
+          <span>Adicionar Local</span>
+          <span class="material-icons">add</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div
+  class="modal-overlay"
+  *ngIf="modalCriarAberto"
+  (click)="fecharModalCriar()"
+>
+
+  <div class="modal-container modal-local" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2>Adicionar Local</h2>
+        <p>Digite o endereço para buscar no mapa ou clique diretamente no mapa.</p>
+      </div>
+
+      <button type="button" class="close-btn" (click)="fecharModalCriar()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <form #formLocal="ngForm" (ngSubmit)="criarLocal()">
+
+      <div class="local-form-layout">
+
+        <div class="form-side">
+
+          <div class="form-group">
+            <label for="nomeLocal">Nome do local</label>
+            <input
+              id="nomeLocal"
+              type="text"
+              name="nomeLocal"
+              placeholder="Ex: Unipar Toledo"
+              [(ngModel)]="novoLocal.nomeLocal"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="cidade">Cidade</label>
+            <input
+              id="cidade"
+              type="text"
+              name="cidade"
+              placeholder="Ex: Toledo"
+              [(ngModel)]="novoLocal.cidade"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="endereco">Endereço completo</label>
+            <input
+              id="endereco"
+              type="text"
+              name="endereco"
+              placeholder="Rua, número, bairro"
+              [(ngModel)]="novoLocal.endereco"
+              required
+            />
+          </div>
+
+          <button
+            type="button"
+            class="secondary-btn full-width-btn"
+            (click)="buscarCoordenadasPorEndereco()"
+          >
+            <span class="material-icons">travel_explore</span>
+            Buscar coordenadas pelo endereço
+          </button>
+
+          <div class="coordinates-grid">
+
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                id="latitude"
+                type="number"
+                name="latitude"
+                step="any"
+                [(ngModel)]="novoLocal.latitude"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                id="longitude"
+                type="number"
+                name="longitude"
+                step="any"
+                [(ngModel)]="novoLocal.longitude"
+                required
+              />
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            class="secondary-btn full-width-btn"
+            (click)="selecionarCoordenadasManuais()"
+          >
+            <span class="material-icons">add_location_alt</span>
+            Usar coordenadas digitadas
+          </button>
+
+        </div>
+
+        <div class="map-side">
+          <label>Selecionar no mapa</label>
+
+          <div id="mapa-local" class="map-container"></div>
+
+          <p class="map-help">
+            Clique no mapa para marcar o ponto do local.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" (click)="fecharModalCriar()">
+          Cancelar
+        </button>
+
+        <button type="submit" class="save-btn" [disabled]="formLocal.invalid">
+          <span class="material-icons">save</span>
+          Cadastrar Local
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<div
+  class="modal-overlay"
+  *ngIf="modalDetalhesAberto && localSelecionado"
+  (click)="fecharModalDetalhes()"
+>
+
+  <div
+    class="modal-container"
+    [class.editing-mode]="modoEdicaoDetalhes"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="modal-header">
+      <div>
+        <h2>Detalhes do Local</h2>
+        <p *ngIf="!modoEdicaoDetalhes">Informações cadastradas no sistema.</p>
+        <p *ngIf="modoEdicaoDetalhes">Modo de edição ativo. Altere nome, cidade ou endereço.</p>
+      </div>
+
+      <button type="button" class="close-btn" (click)="fecharModalDetalhes()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="edit-alert" *ngIf="modoEdicaoDetalhes">
+      <span class="material-icons">edit</span>
+      Você está editando este local. Os campos liberados ficaram destacados.
+    </div>
+
+    <div class="detail-profile">
+
+      <div class="detail-avatar">
+        <span class="material-icons">location_on</span>
+      </div>
+
+      <div>
+        <h3>{{ localSelecionado.nomeLocal }}</h3>
+
+        <span
+          class="status-badge"
+          [class.status-active]="localSelecionado.ativo"
+          [class.status-inactive]="!localSelecionado.ativo"
+        >
+          <span class="material-icons">
+            {{ localSelecionado.ativo ? 'check_circle' : 'cancel' }}
+          </span>
+
+          {{ localSelecionado.ativo ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="detail-grid">
+
+      <div class="detail-field" [class.editable-field]="modoEdicaoDetalhes">
+        <label>Nome do local</label>
+
+        <span *ngIf="!modoEdicaoDetalhes">{{ localSelecionado.nomeLocal }}</span>
+
+        <input
+          *ngIf="modoEdicaoDetalhes"
+          type="text"
+          [(ngModel)]="localEdicao.nomeLocal"
+        />
+      </div>
+
+      <div class="detail-field" [class.editable-field]="modoEdicaoDetalhes">
+        <label>Cidade</label>
+
+        <span *ngIf="!modoEdicaoDetalhes">{{ localSelecionado.cidade }}</span>
+
+        <input
+          *ngIf="modoEdicaoDetalhes"
+          type="text"
+          [(ngModel)]="localEdicao.cidade"
+        />
+      </div>
+
+      <div class="detail-field detail-field-wide" [class.editable-field]="modoEdicaoDetalhes">
+        <label>Endereço</label>
+
+        <span *ngIf="!modoEdicaoDetalhes">{{ localSelecionado.endereco }}</span>
+
+        <input
+          *ngIf="modoEdicaoDetalhes"
+          type="text"
+          [(ngModel)]="localEdicao.endereco"
+        />
+      </div>
+
+      <div class="detail-field">
+        <label>Latitude</label>
+        <span>{{ localSelecionado.latitude }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Longitude</label>
+        <span>{{ localSelecionado.longitude }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Status</label>
+        <span>{{ localSelecionado.ativo ? 'Ativo' : 'Inativo' }}</span>
+      </div>
+
+    </div>
+
+    <div class="modal-footer" *ngIf="!modoEdicaoDetalhes">
+      <button type="button" class="secondary-btn" (click)="fecharModalDetalhes()">
+        Cancelar
+      </button>
+
+      <button type="button" class="edit-local-btn" (click)="ativarModoEdicao()">
+        <span class="material-icons">edit</span>
+        Alterar Local
+      </button>
+
+      <button type="button" class="status-action-btn" (click)="alterarStatusLocal()">
+        <span class="material-icons">
+          {{ localSelecionado.ativo ? 'block' : 'check_circle' }}
+        </span>
+
+        {{ localSelecionado.ativo ? 'Inativar Local' : 'Ativar Local' }}
+      </button>
+    </div>
+
+    <div class="modal-footer" *ngIf="modoEdicaoDetalhes">
+      <button type="button" class="secondary-btn" (click)="cancelarEdicao()">
+        <span class="material-icons">close</span>
+        Cancelar alteração
+      </button>
+
+      <button type="button" class="save-btn" (click)="salvarAlteracaoLocal()">
+        <span class="material-icons">save</span>
+        Salvar alterações
+      </button>
+    </div>
+
+  </div>
+
+</div>

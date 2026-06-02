@@ -3,6 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
+interface UsuarioLogado {
+  id: number;
+  nome: string;
+  email: string;
+  atribuicao: 'SOLICITANTE' | 'EXECUTOR' | 'ADMINISTRADOR';
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -11,43 +18,57 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './login.css',
 })
 export class Login {
-  email: string = '';
-  senha: string = '';
-  dominio: string = '';
+  email = '';
+  senha = '';
+  dominio = '';
 
-  private dominioValido: string = '@unipar.com.br';
+  private dominioValido = '@unipar.com.br';
 
   constructor(
     private router: Router,
-    private http: HttpClient,
+    private http: HttpClient
   ) {}
 
-  fazerLogin() {
-    // 🔴 valida domínio
+  fazerLogin(): void {
     if (!this.dominio || this.dominio !== this.dominioValido) {
       alert('Domínio incorreto ou não autorizado');
       return;
     }
 
-    // 🔴 valida campos vazios
-    if (!this.email || !this.senha) {
+    if (!this.email.trim() || !this.senha.trim()) {
       alert('Preencha email e senha');
       return;
     }
 
-    // 🚀 chamada para backend
     this.http
-      .post('http://localhost:8081/auth/login', {
-        email: this.email,
-        senha: this.senha,
+      .post<UsuarioLogado>('http://localhost:8081/auth/login', {
+        email: this.email.trim().toLowerCase(),
+        senha: this.senha.trim(),
       })
       .subscribe({
-        next: () => {
-          this.router.navigate(['/home']);
+        next: (usuario) => {
+          localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+          this.redirecionarPorPerfil(usuario);
         },
         error: () => {
           alert('Login inválido');
         },
       });
+  }
+
+  private redirecionarPorPerfil(usuario: UsuarioLogado): void {
+
+    if (
+      usuario.atribuicao === 'ADMINISTRADOR' ||
+      usuario.atribuicao === 'SOLICITANTE' ||
+      usuario.atribuicao === 'EXECUTOR'
+    ) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    alert('Perfil de usuário não reconhecido');
+    localStorage.removeItem('usuarioLogado');
+    this.router.navigate(['/login']);
   }
 }

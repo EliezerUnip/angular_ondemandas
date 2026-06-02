@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapaEmbed } from './mapa-embed';
+import { Demandas } from './demandas';
 
-describe('MapaEmbed', () => {
-  let component: MapaEmbed;
-  let fixture: ComponentFixture<MapaEmbed>;
+describe('Demandas', () => {
+  let component: Demandas;
+  let fixture: ComponentFixture<Demandas>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MapaEmbed],
+      imports: [Demandas],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MapaEmbed);
+    fixture = TestBed.createComponent(Demandas);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

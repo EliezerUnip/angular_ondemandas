@@ -1,5 +1,18 @@
 <div class="usuarios-page">
 
+  <div
+    class="toast-message"
+    *ngIf="mensagemSistema"
+    [class.toast-success]="tipoMensagem === 'sucesso'"
+    [class.toast-error]="tipoMensagem === 'erro'"
+  >
+    <span class="material-icons">
+      {{ tipoMensagem === 'sucesso' ? 'check_circle' : 'error' }}
+    </span>
+
+    {{ mensagemSistema }}
+  </div>
+
   <div class="left-bar">
     <button class="side-arrow">❯</button>
   </div>
@@ -7,43 +20,169 @@
   <div class="main-content">
 
     <div class="top-header">
-      <button class="home-button" (click)="irParaHome()">⌂</button>
+      <button class="home-button" (click)="irParaHome()">
+        <span class="material-icons">home</span>
+      </button>
     </div>
 
-    <!-- ================= LISTA ================= -->
+    <div class="filters-area">
+
+      <div class="search-row">
+
+        <div class="search-box">
+          <span class="material-icons">search</span>
+
+          <input
+            type="text"
+            placeholder="Buscar por nome ou email"
+            class="search-input"
+            [(ngModel)]="termoBusca"
+            (input)="aplicarFiltros()"
+          />
+        </div>
+
+        <div class="filter-menu-area">
+          <button class="filter-main-btn" type="button" (click)="alternarMenuFiltros()">
+            <span class="material-icons">filter_list</span>
+            Filtros
+            <span class="material-icons">
+              {{ menuFiltrosAberto ? 'expand_less' : 'expand_more' }}
+            </span>
+          </button>
+
+          <div class="filter-dropdown" *ngIf="menuFiltrosAberto">
+
+            <button type="button" class="filter-option" (click)="ordenarPorNome()">
+              <span class="material-icons">sort_by_alpha</span>
+              Ordenar por nome
+            </button>
+
+            <button type="button" class="filter-option" (click)="ordenarPorEmail()">
+              <span class="material-icons">alternate_email</span>
+              Ordenar por email
+            </button>
+
+            <button type="button" class="filter-option" (click)="agruparPorAtribuicao()">
+              <span class="material-icons">badge</span>
+              Agrupar por atribuição
+            </button>
+
+            <div class="filter-select-area">
+              <label>Atribuição</label>
+
+              <select
+                [(ngModel)]="atribuicaoSelecionada"
+                (change)="filtrarPorAtribuicao()"
+              >
+                <option value="">Todas</option>
+                <option [value]="Atribuicao.SOLICITANTE">Solicitante</option>
+                <option [value]="Atribuicao.EXECUTOR">Executor</option>
+                <option [value]="Atribuicao.ADMINISTRADOR">Administrador</option>
+              </select>
+            </div>
+
+            <button type="button" class="filter-option clear" (click)="limparFiltros()">
+              <span class="material-icons">restart_alt</span>
+              Limpar filtros
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="filters-summary">
+        <span class="summary-pill" *ngIf="ordenacaoNomeAtiva">
+          <span class="material-icons">sort_by_alpha</span>
+          Nome A-Z
+        </span>
+
+        <span class="summary-pill" *ngIf="ordenacaoEmailAtiva">
+          <span class="material-icons">alternate_email</span>
+          Email A-Z
+        </span>
+
+        <span class="summary-pill" *ngIf="agrupamentoAtribuicaoAtivo">
+          <span class="material-icons">badge</span>
+          Agrupado por atribuição
+        </span>
+
+        <span class="summary-pill" *ngIf="atribuicaoSelecionada">
+          <span class="material-icons">person_search</span>
+          {{ textoAtribuicao(atribuicaoSelecionada) }}
+        </span>
+      </div>
+
+    </div>
+
     <div class="content-area">
 
       <div class="users-list">
 
-        <div class="user-card" *ngFor="let usuario of usuarios">
+        <div class="empty-state" *ngIf="usuariosFiltrados.length === 0">
+          <span class="material-icons">search_off</span>
+          <h3>Nenhum usuário encontrado</h3>
+          <p>Tente buscar por outro nome, email ou atribuição.</p>
+        </div>
+
+        <div
+          class="user-card"
+          *ngFor="let usuario of usuariosFiltrados"
+          (click)="abrirDetalhesUsuario(usuario)"
+        >
 
           <div class="card-left">
-            <div class="avatar">👤</div>
+            <div class="avatar">
+              <span class="material-icons">person</span>
+            </div>
 
             <div class="user-info">
               <h2>{{ usuario.nome }}</h2>
-              <p>{{ usuario.email }}</p>
+
+              <p>
+                <span class="material-icons">email</span>
+                {{ usuario.email }}
+              </p>
+
+              <p>
+                <span class="material-icons">phone</span>
+                {{ usuario.telefone }}
+              </p>
             </div>
           </div>
 
           <div class="card-right">
 
             <div class="top-info">
-              <span class="perfil-icon">⚒</span>
+              <span class="perfil-badge">
+                <span class="material-icons">
+                  {{ iconeAtribuicao(usuario.atribuicao) }}
+                </span>
 
-              <span class="perfil-text">
-                {{ usuario.atribuicao }}
+                {{ textoAtribuicao(usuario.atribuicao) }}
               </span>
 
-              <span class="status-text">
+              <span
+                class="status-badge"
+                [class.status-active]="usuario.ativo"
+                [class.status-inactive]="!usuario.ativo"
+              >
+                <span class="material-icons">
+                  {{ usuario.ativo ? 'check_circle' : 'cancel' }}
+                </span>
+
                 {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
               </span>
             </div>
 
-            <div class="phone-info">
-              <span class="phone-icon">📞</span>
-              <span>{{ usuario.telefone }}</span>
-            </div>
+            <button
+              class="edit-btn"
+              type="button"
+              (click)="abrirModalEditarUsuario(usuario, $event)"
+            >
+              <span class="material-icons">edit</span>
+              Editar
+            </button>
 
           </div>
 
@@ -54,122 +193,245 @@
       <div class="action-area">
         <button class="create-user-btn" (click)="abrirModalCriarUsuario()">
           <span class="btn-text">Criar Usuário</span>
-          <span class="btn-plus">+</span>
+          <span class="material-icons">add</span>
         </button>
       </div>
 
     </div>
+
   </div>
+
 </div>
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL DETALHES -->
+<div
+  class="detail-overlay"
+  *ngIf="modalDetalheAberto && usuarioDetalhe"
+  (click)="fecharModalDetalhe()"
+>
 
-<div class="modal-overlay" *ngIf="modalAberto">
+  <div class="detail-card" (click)="$event.stopPropagation()">
 
-  <div class="modal-container">
+    <div class="detail-header">
+      <div>
+        <h2>Detalhes do Usuário</h2>
+        <p>Informações atualizadas conforme o banco de dados</p>
+      </div>
+
+      <button type="button" class="close-btn" (click)="fecharModalDetalhe()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="detail-profile">
+      <div class="detail-avatar">
+        <span class="material-icons">person</span>
+      </div>
+
+      <div>
+        <h3>{{ usuarioDetalhe.nome }}</h3>
+
+        <span
+          class="status-badge"
+          [class.status-active]="usuarioDetalhe.ativo"
+          [class.status-inactive]="!usuarioDetalhe.ativo"
+        >
+          <span class="material-icons">
+            {{ usuarioDetalhe.ativo ? 'check_circle' : 'cancel' }}
+          </span>
+
+          {{ usuarioDetalhe.ativo ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+
+      <div class="detail-field">
+        <label>Nome completo</label>
+        <span>{{ usuarioDetalhe.nome }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Email</label>
+        <span>{{ usuarioDetalhe.email }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Telefone</label>
+        <span>{{ usuarioDetalhe.telefone }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Atribuição</label>
+        <span>
+          <span class="material-icons inline-icon">
+            {{ iconeAtribuicao(usuarioDetalhe.atribuicao) }}
+          </span>
+
+          {{ textoAtribuicao(usuarioDetalhe.atribuicao) }}
+        </span>
+      </div>
+
+      <div class="detail-field">
+        <label>Status da conta</label>
+        <span>{{ usuarioDetalhe.ativo ? 'Ativo' : 'Inativo' }}</span>
+      </div>
+
+    </div>
+
+    <div class="detail-footer">
+
+      <button type="button" class="secondary-btn" (click)="fecharModalDetalhe()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="delete-btn"
+        (click)="excluirUsuarioDaTela(usuarioDetalhe, $event)"
+      >
+        <span class="material-icons">delete</span>
+        Remover da listagem
+      </button>
+
+      <button
+        type="button"
+        class="edit-btn"
+        (click)="abrirModalEditarUsuario(usuarioDetalhe, $event)"
+      >
+        <span class="material-icons">edit</span>
+        Editar usuário
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL CRIAR -->
+<div
+  class="modal-overlay"
+  *ngIf="modalAberto"
+  (click)="fecharModalCriarUsuario()"
+>
+
+  <div class="modal-container" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
       <h2>Criar Usuário</h2>
-      <button class="close-btn" (click)="fecharModalCriarUsuario()">✖</button>
+
+      <button type="button" class="close-btn" (click)="fecharModalCriarUsuario()">
+        <span class="material-icons">close</span>
+      </button>
     </div>
 
     <div class="modal-body">
 
-      <form class="modal-right">
+      <form class="modal-right" #formUsuario="ngForm" (ngSubmit)="criarUsuario()">
 
-        <!-- NOME -->
         <div class="form-group">
-          <label>Nome</label>
-          <input
-            type="text"
-            name="nome"
-            [(ngModel)]="novoUsuario.nome"
-            required
-          />
-        </div>
-
-        <!-- TELEFONE -->
-        <div class="form-group">
-          <label>Telefone</label>
-          <input
-            type="text"
-            name="telefone"
-            [(ngModel)]="novoUsuario.telefone"
-          />
-        </div>
-
-        <!-- EMAIL -->
-        <div class="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            [(ngModel)]="novoUsuario.email"
-            required
-          />
-        </div>
-
-<<<<<<< HEAD
-        <div class="form-group">
-          <label>Nome de Usuário</label>
-          <input type="text" [(ngModel)]="novoUsuario.nome" required />
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" name="nome" [(ngModel)]="novoUsuario.nome" required />
         </div>
 
         <div class="form-group">
-          <label>Telefone</label>
-          <input type="text" [(ngModel)]="novoUsuario.telefone" required />
+          <label for="telefone">Telefone</label>
+          <input id="telefone" type="text" name="telefone" [(ngModel)]="novoUsuario.telefone" required />
         </div>
 
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="novoUsuario.email" required />
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" [(ngModel)]="novoUsuario.email" required />
         </div>
 
         <div class="form-group small">
-          <label>Função/Atribuição</label>
-          <select [(ngModel)]="novoUsuario.atribuicao" required>
+          <label for="atribuicao">Atribuição</label>
+
+          <select id="atribuicao" name="atribuicao" [(ngModel)]="novoUsuario.atribuicao" required>
             <option [ngValue]="Atribuicao.SOLICITANTE">Solicitante</option>
             <option [ngValue]="Atribuicao.EXECUTOR">Executor</option>
             <option [ngValue]="Atribuicao.ADMINISTRADOR">Administrador</option>
-=======
-        <!-- ATRIBUIÇÃO (PONTO CRÍTICO) -->
-        <div class="form-group small">
-          <label>Atribuição</label>
-
-          <select
-            name="atribuicao"
-            [(ngModel)]="novoUsuario.atribuicao"
-            required
-          >
-            <option [ngValue]="Atribuicao.SOLICITANTE">
-              Solicitante
-            </option>
-
-            <option [ngValue]="Atribuicao.EXECUTOR">
-              Executor
-            </option>
-
-            <option [ngValue]="Atribuicao.ADMINISTRADOR">
-              Administrador
-            </option>
->>>>>>> dce2601484aa4f0c9f2ca868c219c123f28991f8
           </select>
+        </div>
 
+        <div class="modal-footer">
+          <button type="submit" class="save-btn" [disabled]="formUsuario.invalid">
+            Criar Usuário
+          </button>
         </div>
 
       </form>
 
     </div>
 
-    <div class="modal-footer">
+  </div>
 
-      <button
-        class="save-btn"
-        (click)="criarUsuario()"
-        [disabled]="!novoUsuario.nome || !novoUsuario.email"
-      >
-        Criar Usuário
+</div>
+
+<!-- MODAL EDITAR -->
+<div
+  class="modal-overlay"
+  *ngIf="modalEdicaoAberto"
+  (click)="fecharModalEditarUsuario()"
+>
+
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Editar Usuário</h2>
+
+      <button type="button" class="close-btn" (click)="fecharModalEditarUsuario()">
+        <span class="material-icons">close</span>
       </button>
+    </div>
+
+    <div class="modal-body">
+
+      <form class="modal-right" #formEdicao="ngForm" (ngSubmit)="atualizarUsuario()">
+
+        <div class="form-group">
+          <label for="editNome">Nome</label>
+          <input id="editNome" type="text" name="editNome" [(ngModel)]="usuarioEdicao.nome" required />
+        </div>
+
+        <div class="form-group">
+          <label for="editTelefone">Telefone</label>
+          <input id="editTelefone" type="text" name="editTelefone" [(ngModel)]="usuarioEdicao.telefone" required />
+        </div>
+
+        <div class="form-group">
+          <label for="editEmail">Email</label>
+          <input id="editEmail" type="email" name="editEmail" [(ngModel)]="usuarioEdicao.email" required />
+        </div>
+
+        <div class="form-group small">
+          <label for="editAtribuicao">Atribuição</label>
+
+          <select id="editAtribuicao" name="editAtribuicao" [(ngModel)]="usuarioEdicao.atribuicao" required>
+            <option [ngValue]="Atribuicao.SOLICITANTE">Solicitante</option>
+            <option [ngValue]="Atribuicao.EXECUTOR">Executor</option>
+            <option [ngValue]="Atribuicao.ADMINISTRADOR">Administrador</option>
+          </select>
+        </div>
+
+        <div class="form-group small">
+          <label for="editAtivo">Status</label>
+
+          <select id="editAtivo" name="editAtivo" [(ngModel)]="usuarioEdicao.ativo">
+            <option [ngValue]="true">Ativo</option>
+            <option [ngValue]="false">Inativo</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="save-btn" [disabled]="formEdicao.invalid">
+            Salvar alterações
+          </button>
+        </div>
+
+      </form>
 
     </div>
 

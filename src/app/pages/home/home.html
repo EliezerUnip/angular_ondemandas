@@ -2,51 +2,106 @@
   <aside class="sidebar">
     <div class="user-box">
       <div class="user-icon">
-        <span>👤</span>
+        <span class="material-icons">account_circle</span>
       </div>
-      <span class="user-name">Administrador</span>
+
+      <div>
+        <span class="user-name">{{ usuarioLogado?.nome }}</span>
+        <span class="user-role">{{ textoPerfil() }}</span>
+      </div>
     </div>
 
     <div class="menu-title">Menu</div>
 
-    <div class="menu-buttons">
+    <div class="menu-buttons" *ngIf="ehAdministrador()">
       <button (click)="irParaUsuarios()">Gestão de Usuários</button>
       <button (click)="irParaTiposDemandas()">Tipos de Demanda</button>
       <button (click)="irParaVeiculos()">Gerenciar Veículos</button>
-      <button>Gerenciar Locais</button>
+      <button (click)="irParaLocal()">Gerenciar Locais</button>
+      <button (click)="irParaDemandas()">Gerenciar Demandas</button>
       <button>Relatórios</button>
+    </div>
+
+    <div class="menu-buttons" *ngIf="ehSolicitante()">
+      <button (click)="irParaDemandas()">Minhas Demandas</button>
+      <button (click)="criarNovaDemanda()">Nova Demanda</button>
+    </div>
+
+    <div class="menu-buttons" *ngIf="ehExecutor()">
+      <button (click)="irParaDemandas()">Demandas Pendentes</button>
+      <button disabled>Minhas Rotas</button>
     </div>
 
     <div class="logout-container">
       <button class="logout-button" (click)="logout()">Sair</button>
     </div>
-
-
-
   </aside>
 
   <main class="content">
-    <div class="top-bar"></div>
+    <div class="dashboard-header">
+      <div>
+        <h1 *ngIf="ehAdministrador()">Painel Administrativo</h1>
+        <h1 *ngIf="ehSolicitante()">Minhas Demandas</h1>
+        <h1 *ngIf="ehExecutor()">Demandas Pendentes</h1>
 
-    <div class="center-content">
-      <div class="check-icon">✓</div>
-
-      <div class="text-box">
-        <h1>Selecione uma opção no menu inicial</h1>
-        <div class="watermark">ON DEMANDAS</div>
-        <p>Ou clique no botão de ajuda<br>no canto inferior direito</p>
+        <p *ngIf="ehAdministrador()">Visão geral das demandas cadastradas no sistema.</p>
+        <p *ngIf="ehSolicitante()">Acompanhe as demandas que você criou.</p>
+        <p *ngIf="ehExecutor()">Selecione uma demanda pendente para visualizar e executar.</p>
       </div>
     </div>
 
-    <div class="map-floating">
-      <iframe
-        width="260"
-        height="200"
-        style="border:0; border-radius: 2px;"
-        loading="lazy"
-        allowfullscreen
-        src="https://maps.google.com/maps?q=Toledo%20Parana%20Brasil&output=embed">
-      </iframe>
+    <div class="dashboard-content">
+      <div class="empty-state" *ngIf="demandasDashboard.length === 0">
+        <span class="material-icons">assignment_late</span>
+        <h2>{{ mensagemVazia }}</h2>
+      </div>
+
+      <div
+        class="demanda-card"
+        *ngFor="let demanda of demandasDashboard"
+        (click)="abrirDemanda(demanda)"
+      >
+        <div class="card-icon">
+          <span class="material-icons">assignment</span>
+        </div>
+
+        <div class="card-info">
+          <h2>{{ demanda.tipo.tipoDemanda }}</h2>
+
+          <p>
+            <span class="material-icons">location_on</span>
+            {{ demanda.local.nomeLocal }} - {{ demanda.local.cidade }}
+          </p>
+
+          <p>
+            <span class="material-icons">person</span>
+            Solicitante: {{ demanda.solicitante.nome }}
+          </p>
+
+          <p *ngIf="demanda.executor">
+            <span class="material-icons">engineering</span>
+            Executor: {{ demanda.executor.nome }}
+          </p>
+        </div>
+
+        <div class="card-status">
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-pendente': demanda.status === 'PENDENTE',
+              'status-andamento': demanda.status === 'EM_ANDAMENTO',
+              'status-concluida': demanda.status === 'CONCLUIDA',
+              'status-cancelada': demanda.status === 'CANCELADA'
+            }"
+          >
+            {{ textoStatus(demanda.status) }}
+          </span>
+
+          <span class="card-date">
+            {{ demanda.dataHoraCriacao | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <button class="help-button">?</button>

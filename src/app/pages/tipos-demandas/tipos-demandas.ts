@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TipoDemandasService } from '../../service/tipo-demandas.service';
@@ -19,13 +25,24 @@ export class TiposDemandas implements OnInit {
   constructor(
     private router: Router,
     private tipoDemandasService: TipoDemandasService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private elementRef: ElementRef
   ) {}
 
   tiposDemandas: TipoDemanda[] = [];
+  tiposDemandasFiltrados: TipoDemanda[] = [];
+
+  termoBusca = '';
+  menuFiltrosAberto = false;
+  ordenacaoDescricaoAtiva = false;
+  agrupamentoStatusAtivo = false;
 
   modalCriarAberto = false;
   modalVisualizarAberto = false;
+
+  mensagemSistema = '';
+  tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
+  private timeoutMensagem: any;
 
   novoTipo: TipoDemandaRequest = {
     tipoDemandaDescricao: '',
@@ -38,15 +55,89 @@ export class TiposDemandas implements OnInit {
     this.carregarTiposDemandas();
   }
 
-  irParaHome() {
+  @HostListener('document:click', ['$event'])
+  fecharElementosAoClicarFora(event: MouseEvent): void {
+    const elementoClicado = event.target as HTMLElement;
+
+    const menuFiltros = this.elementRef.nativeElement.querySelector(
+      '.filter-menu-area'
+    );
+
+    const modalContainer = this.elementRef.nativeElement.querySelector(
+      '.modal-container'
+    );
+
+    if (!menuFiltros?.contains(elementoClicado)) {
+      this.menuFiltrosAberto = false;
+    }
+
+    if (
+      (this.modalCriarAberto || this.modalVisualizarAberto) &&
+      modalContainer &&
+      !modalContainer.contains(elementoClicado)
+    ) {
+      this.fecharModalCriar();
+      this.fecharModalVisualizar();
+    }
+  }
+
+  irParaHome(): void {
     this.router.navigate(['/home']);
   }
 
-  abrirModalCriar() {
+  alternarMenuFiltros(): void {
+    this.menuFiltrosAberto = !this.menuFiltrosAberto;
+  }
+
+  ordenarPorDescricao(): void {
+    this.ordenacaoDescricaoAtiva = !this.ordenacaoDescricaoAtiva;
+    this.menuFiltrosAberto = false;
+    this.aplicarFiltros();
+  }
+
+  agruparPorStatus(): void {
+    this.agrupamentoStatusAtivo = !this.agrupamentoStatusAtivo;
+    this.menuFiltrosAberto = false;
+    this.aplicarFiltros();
+  }
+
+  limparFiltros(): void {
+    this.termoBusca = '';
+    this.ordenacaoDescricaoAtiva = false;
+    this.agrupamentoStatusAtivo = false;
+    this.menuFiltrosAberto = false;
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros(): void {
+    let lista = [...this.tiposDemandas];
+
+    const busca = this.termoBusca.trim().toLowerCase();
+
+    if (busca) {
+      lista = lista.filter((tipo) =>
+        tipo.tipoDemanda.toLowerCase().includes(busca)
+      );
+    }
+
+    if (this.ordenacaoDescricaoAtiva) {
+      lista.sort((a, b) =>
+        a.tipoDemanda.localeCompare(b.tipoDemanda, 'pt-BR')
+      );
+    }
+
+    if (this.agrupamentoStatusAtivo) {
+      lista.sort((a, b) => Number(b.ativo) - Number(a.ativo));
+    }
+
+    this.tiposDemandasFiltrados = lista;
+  }
+
+  abrirModalCriar(): void {
     this.modalCriarAberto = true;
   }
 
-  fecharModalCriar() {
+  fecharModalCriar(): void {
     this.modalCriarAberto = false;
     this.novoTipo = {
       tipoDemandaDescricao: '',
@@ -54,47 +145,53 @@ export class TiposDemandas implements OnInit {
     };
   }
 
-  abrirModalVisualizar(tipo: TipoDemanda) {
+  abrirModalVisualizar(tipo: TipoDemanda): void {
     this.tipoSelecionado = { ...tipo };
     this.modalVisualizarAberto = true;
   }
 
-  fecharModalVisualizar() {
+  fecharModalVisualizar(): void {
     this.modalVisualizarAberto = false;
     this.tipoSelecionado = null;
   }
 
-  carregarTiposDemandas() {
+  carregarTiposDemandas(): void {
     this.tipoDemandasService.listar().subscribe({
       next: (dados) => {
         this.tiposDemandas = dados;
+        this.aplicarFiltros();
         this.cdr.detectChanges();
       },
       error: () => {
-        alert('Erro ao carregar tipos de demanda');
+        this.exibirMensagem('Erro ao carregar tipos de demanda.', 'erro');
       },
     });
   }
 
-  criarTipoDemanda() {
+  criarTipoDemanda(): void {
     if (!this.novoTipo.tipoDemandaDescricao.trim()) {
-      alert('Preencha a descrição do tipo de demanda');
+      this.exibirMensagem('Preencha a descrição do tipo de demanda.', 'erro');
       return;
     }
 
-    this.tipoDemandasService.criar(this.novoTipo).subscribe({
+    const body: TipoDemandaRequest = {
+      tipoDemandaDescricao: this.novoTipo.tipoDemandaDescricao.trim(),
+      ativo: true,
+    };
+
+    this.tipoDemandasService.criar(body).subscribe({
       next: () => {
-        alert('Tipo de demanda criado com sucesso! ✅');
+        this.exibirMensagem('Tipo de demanda criado com sucesso!', 'sucesso');
         this.carregarTiposDemandas();
         this.fecharModalCriar();
       },
       error: () => {
-        alert('Erro ao criar tipo de demanda ❌');
+        this.exibirMensagem('Erro ao criar tipo de demanda.', 'erro');
       },
     });
   }
 
-  alterarStatusTipoDemanda() {
+  alterarStatusTipoDemanda(): void {
     if (!this.tipoSelecionado || !this.tipoSelecionado.id) {
       return;
     }
@@ -104,21 +201,36 @@ export class TiposDemandas implements OnInit {
       ativo: !this.tipoSelecionado.ativo,
     };
 
-    this.tipoDemandasService
-      .atualizar(this.tipoSelecionado.id, body)
-      .subscribe({
-        next: () => {
-          alert(
-            `Tipo de demanda ${
-              body.ativo ? 'ativado' : 'inativado'
-            } com sucesso! ✅`
-          );
-          this.carregarTiposDemandas();
-          this.fecharModalVisualizar();
-        },
-        error: () => {
-          alert('Erro ao atualizar status do tipo de demanda ❌');
-        },
-      });
+    this.tipoDemandasService.atualizar(this.tipoSelecionado.id, body).subscribe({
+      next: () => {
+        this.exibirMensagem(
+          `Tipo de demanda ${body.ativo ? 'ativado' : 'inativado'} com sucesso!`,
+          'sucesso'
+        );
+
+        this.carregarTiposDemandas();
+        this.fecharModalVisualizar();
+      },
+      error: () => {
+        this.exibirMensagem('Erro ao atualizar status do tipo de demanda.', 'erro');
+      },
+    });
+  }
+
+  private exibirMensagem(
+    mensagem: string,
+    tipo: 'sucesso' | 'erro' = 'sucesso'
+  ): void {
+    this.mensagemSistema = mensagem;
+    this.tipoMensagem = tipo;
+
+    if (this.timeoutMensagem) {
+      clearTimeout(this.timeoutMensagem);
+    }
+
+    this.timeoutMensagem = setTimeout(() => {
+      this.mensagemSistema = '';
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

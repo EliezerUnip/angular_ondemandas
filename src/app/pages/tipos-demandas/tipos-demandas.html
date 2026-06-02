@@ -1,134 +1,263 @@
 <div class="tipos-page">
+
+  <div
+    class="toast-message"
+    *ngIf="mensagemSistema"
+    [class.toast-success]="tipoMensagem === 'sucesso'"
+    [class.toast-error]="tipoMensagem === 'erro'"
+  >
+    <span class="material-icons">
+      {{ tipoMensagem === 'sucesso' ? 'check_circle' : 'error' }}
+    </span>
+    {{ mensagemSistema }}
+  </div>
+
   <div class="left-bar">
     <button class="side-arrow">❯</button>
   </div>
 
   <div class="main-content">
+
     <div class="top-header">
-      <button class="home-button" (click)="irParaHome()">⌂</button>
+      <button class="home-button" (click)="irParaHome()">
+        <span class="material-icons">home</span>
+      </button>
     </div>
 
     <div class="filters-area">
+
       <div class="search-row">
-        <input
-          type="text"
-          placeholder="Insira um valor válido"
-          class="search-input"
-        />
-        <button class="search-button">⌕</button>
-      </div>
+        <div class="search-box">
+          <span class="material-icons">search</span>
 
-      <div class="filter-row">
-        <span class="filter-label">Aplicar Filtros:</span>
+          <input
+            type="text"
+            placeholder="Buscar por descrição"
+            class="search-input"
+            [(ngModel)]="termoBusca"
+            (input)="aplicarFiltros()"
+          />
+        </div>
 
-        <button class="filter-button">
-          Descrição
-          <span class="filter-icon">▼</span>
-        </button>
-
-        <button class="filter-button">
-          Status
-          <span class="filter-icon">▼</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="content-area">
-      <div class="tipos-list">
-        <div
-          class="tipo-card"
-          *ngFor="let tipo of tiposDemandas"
-          (click)="abrirModalVisualizar(tipo)"
-        >
-          <div class="tipo-descricao">
-            {{ tipo.tipoDemanda }}
-          </div>
-
-          <div class="tipo-status-area">
-            <span class="status-text">
-              Status: {{ tipo.ativo ? 'Ativa' : 'Inativa' }}
+        <div class="filter-menu-area">
+          <button class="filter-main-btn" type="button" (click)="alternarMenuFiltros()">
+            <span class="material-icons">filter_list</span>
+            Filtros
+            <span class="material-icons">
+              {{ menuFiltrosAberto ? 'expand_less' : 'expand_more' }}
             </span>
+          </button>
 
-            <span
-              class="status-dot"
-              [ngClass]="tipo.ativo ? 'ativo' : 'inativo'"
-            ></span>
+          <div class="filter-dropdown" *ngIf="menuFiltrosAberto">
+
+            <button type="button" class="filter-option" (click)="ordenarPorDescricao()">
+              <span class="material-icons">sort_by_alpha</span>
+              Ordenar por descrição
+            </button>
+
+            <button type="button" class="filter-option" (click)="agruparPorStatus()">
+              <span class="material-icons">fact_check</span>
+              Agrupar por status
+            </button>
+
+            <button type="button" class="filter-option clear" (click)="limparFiltros()">
+              <span class="material-icons">restart_alt</span>
+              Limpar filtros
+            </button>
+
           </div>
         </div>
       </div>
 
+      <div class="filters-summary">
+        <span class="summary-pill" *ngIf="ordenacaoDescricaoAtiva">
+          <span class="material-icons">sort_by_alpha</span>
+          Descrição A-Z
+        </span>
+
+        <span class="summary-pill" *ngIf="agrupamentoStatusAtivo">
+          <span class="material-icons">fact_check</span>
+          Agrupado por status
+        </span>
+      </div>
+
+    </div>
+
+    <div class="content-area">
+
+      <div class="tipos-list">
+
+        <div class="empty-state" *ngIf="tiposDemandasFiltrados.length === 0">
+          <span class="material-icons">search_off</span>
+          <h3>Nenhum tipo encontrado</h3>
+          <p>Tente buscar por outra descrição ou limpe os filtros.</p>
+        </div>
+
+        <div
+          class="tipo-card"
+          *ngFor="let tipo of tiposDemandasFiltrados"
+          (click)="abrirModalVisualizar(tipo)"
+        >
+
+          <div class="tipo-left">
+            <div class="tipo-icon">
+              <span class="material-icons">assignment</span>
+            </div>
+
+            <div>
+              <h2>{{ tipo.tipoDemanda }}</h2>
+              <p>Tipo de demanda cadastrado</p>
+            </div>
+          </div>
+
+          <div class="tipo-right">
+            <span
+              class="status-badge"
+              [class.status-active]="tipo.ativo"
+              [class.status-inactive]="!tipo.ativo"
+            >
+              <span class="material-icons">
+                {{ tipo.ativo ? 'check_circle' : 'cancel' }}
+              </span>
+
+              {{ tipo.ativo ? 'Ativa' : 'Inativa' }}
+            </span>
+
+            <span class="material-icons open-icon">chevron_right</span>
+          </div>
+
+        </div>
+
+      </div>
+
       <div class="action-area">
         <button class="create-tipo-btn" (click)="abrirModalCriar()">
-          <span class="btn-text">Adicionar Tipo</span>
-          <span class="btn-plus">+</span>
+          <span>Adicionar Tipo</span>
+          <span class="material-icons">add</span>
         </button>
       </div>
+
     </div>
+
   </div>
 </div>
 
 <!-- MODAL CRIAR -->
 <div class="modal-overlay" *ngIf="modalCriarAberto">
-  <div class="modal-container modal-criar">
+
+  <div class="modal-container">
+
     <div class="modal-header">
-      <h2>Criar tipo de demanda</h2>
-      <button class="close-btn" (click)="fecharModalCriar()">✖</button>
-    </div>
-
-    <div class="modal-body">
-      <div class="modal-right full-width">
-        <div class="form-group">
-          <label>Descrição do tipo</label>
-          <input type="text" [(ngModel)]="novoTipo.tipoDemandaDescricao" />
-        </div>
+      <div>
+        <h2>Criar tipo de demanda</h2>
+        <p>Cadastre uma nova categoria para organizar as demandas.</p>
       </div>
-    </div>
 
-    <div class="modal-footer">
-      <button class="save-btn" (click)="criarTipoDemanda()">
-        Criar Tipo
+      <button type="button" class="close-btn" (click)="fecharModalCriar()">
+        <span class="material-icons">close</span>
       </button>
     </div>
+
+    <form #formTipo="ngForm" (ngSubmit)="criarTipoDemanda()">
+
+      <div class="form-group">
+        <label for="descricao">Descrição do tipo</label>
+
+        <input
+          id="descricao"
+          type="text"
+          name="descricao"
+          placeholder="Ex: Levar documentos"
+          [(ngModel)]="novoTipo.tipoDemandaDescricao"
+          required
+        />
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" (click)="fecharModalCriar()">
+          Cancelar
+        </button>
+
+        <button type="submit" class="save-btn" [disabled]="formTipo.invalid">
+          <span class="material-icons">save</span>
+          Criar Tipo
+        </button>
+      </div>
+
+    </form>
+
   </div>
+
 </div>
 
 <!-- MODAL VISUALIZAR -->
 <div class="modal-overlay" *ngIf="modalVisualizarAberto && tipoSelecionado">
-  <div class="modal-container modal-visualizar">
+
+  <div class="modal-container">
+
     <div class="modal-header">
-      <h2>Visualizar Tipo</h2>
-      <button class="close-btn" (click)="fecharModalVisualizar()">✖</button>
-    </div>
-
-    <div class="modal-body">
-      <div class="modal-right full-width">
-        <div class="form-group">
-          <label>Descrição do tipo</label>
-          <input type="text" [value]="tipoSelecionado.tipoDemanda" readonly />
-        </div>
-
-        <div class="status-box">
-          <span class="status-box-label">Status:</span>
-
-          <div class="status-box-right">
-            <span>{{ tipoSelecionado.ativo ? 'Ativo' : 'Inativo' }}</span>
-            <span
-              class="status-dot"
-              [ngClass]="tipoSelecionado.ativo ? 'ativo' : 'inativo'"
-            ></span>
-          </div>
-        </div>
+      <div>
+        <h2>Detalhes do tipo</h2>
+        <p>Visualize e altere o status deste tipo de demanda.</p>
       </div>
+
+      <button type="button" class="close-btn" (click)="fecharModalVisualizar()">
+        <span class="material-icons">close</span>
+      </button>
     </div>
 
-    <div class="modal-footer modal-footer-space-between">
-      <button class="status-btn" (click)="alterarStatusTipoDemanda()">
+    <div class="detail-box">
+
+      <div class="detail-icon">
+        <span class="material-icons">assignment</span>
+      </div>
+
+      <div>
+        <h3>{{ tipoSelecionado.tipoDemanda }}</h3>
+
+        <span
+          class="status-badge"
+          [class.status-active]="tipoSelecionado.ativo"
+          [class.status-inactive]="!tipoSelecionado.ativo"
+        >
+          <span class="material-icons">
+            {{ tipoSelecionado.ativo ? 'check_circle' : 'cancel' }}
+          </span>
+
+          {{ tipoSelecionado.ativo ? 'Ativa' : 'Inativa' }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="detail-grid">
+
+      <div class="detail-field">
+        <label>Descrição</label>
+        <span>{{ tipoSelecionado.tipoDemanda }}</span>
+      </div>
+
+      <div class="detail-field">
+        <label>Status</label>
+        <span>{{ tipoSelecionado.ativo ? 'Ativa' : 'Inativa' }}</span>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="secondary-btn" (click)="fecharModalVisualizar()">
+        Cancelar
+      </button>
+
+      <button type="button" class="status-action-btn" (click)="alterarStatusTipoDemanda()">
+        <span class="material-icons">
+          {{ tipoSelecionado.ativo ? 'block' : 'check_circle' }}
+        </span>
+
         {{ tipoSelecionado.ativo ? 'Inativar' : 'Ativar' }}
       </button>
-
-      <button class="save-btn disabled-btn" disabled>
-        Alterar
-      </button>
     </div>
+
   </div>
+
 </div>
