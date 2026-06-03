@@ -7,6 +7,8 @@ import { TiposDemandas } from './pages/tipos-demandas/tipos-demandas';
 import { Veiculos } from './pages/veiculos/veiculos';
 import { Locais } from './pages/locais/locais';
 import { Demandas } from './pages/demandas/demandas';
+import { Rotas } from './pages/rotas/rotas';
+
 
 import { perfilGuard } from './guards/perfil.guard';
 
@@ -55,8 +57,13 @@ export const routes: Routes = [
     data: { perfis: ['ADMINISTRADOR', 'SOLICITANTE', 'EXECUTOR'] },
   },
 
-
-
+  {
+    path: 'rotas',
+    component: Rotas,
+    canActivate: [perfilGuard],
+    data: { perfis: ['EXECUTOR', 'ADMINISTRADOR'] },
+  },
+  
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

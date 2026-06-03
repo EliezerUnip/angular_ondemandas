@@ -306,4 +306,25 @@
   .card-status {
     align-items: flex-start;
   }
+
+  .route-btn {
+    border: none;
+    border-radius: 12px;
+    padding: 0 18px;
+    height: 52px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    background: #7c3aed;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: 0.2s ease;
+  }
+
+  .route-btn:hover {
+    background: #6d28d9;
+  }
 }

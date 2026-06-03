@@ -1,0 +1,267 @@
+* {
+  box-sizing: border-box;
+}
+
+.rotas-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f3f4f6;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.left-bar {
+  width: 76px;
+  background: #4c84ee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 12px;
+  gap: 16px;
+}
+
+.home-button,
+.side-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  background: #eef2ff;
+  color: #4c84ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.home-button:hover,
+.side-button:hover {
+  background: white;
+}
+
+.main-content {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.header-card {
+  background: white;
+  border-radius: 20px;
+  padding: 26px 30px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-card h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: #111827;
+}
+
+.header-card p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.clear-btn,
+.primary-btn {
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  background: #4c84ee;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clear-btn {
+  background: #dc2626;
+}
+
+.clear-btn:hover {
+  background: #b91c1c;
+}
+
+.primary-btn:hover {
+  background: #2563eb;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+}
+
+.route-list,
+.map-placeholder {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  color: #111827;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.section-title .material-icons {
+  color: #4c84ee;
+}
+
+.route-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  transition: 0.2s ease;
+}
+
+.route-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.route-index {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #4c84ee;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.route-info {
+  flex: 1;
+}
+
+.route-info h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 20px;
+}
+
+.route-info p {
+  margin: 6px 0;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.route-info .material-icons {
+  font-size: 18px;
+}
+
+.status-pill {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.remove-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-state .material-icons {
+  font-size: 64px;
+  color: #4c84ee;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 24px;
+}
+
+.empty-state p {
+  margin: 0 auto 20px;
+  max-width: 420px;
+}
+
+.map-placeholder {
+  min-height: 420px;
+  border: 2px dashed #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b7280;
+}
+
+.map-placeholder .material-icons {
+  font-size: 80px;
+  color: #4c84ee;
+  margin-bottom: 12px;
+}
+
+.map-placeholder h2 {
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.map-placeholder p {
+  max-width: 280px;
+}
+
+@media (max-width: 980px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+}

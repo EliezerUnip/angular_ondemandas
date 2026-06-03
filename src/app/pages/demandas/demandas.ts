@@ -447,6 +447,8 @@ export class Demandas implements OnInit {
       return;
     }
 
+
+
     this.demandasService.concluir(this.demandaSelecionada.id).subscribe({
       next: () => {
         this.exibirMensagem('Demanda concluída com sucesso!', 'sucesso');
@@ -506,6 +508,50 @@ export class Demandas implements OnInit {
       this.ehExecutor() &&
       demanda.executor?.id === this.usuarioLogado?.id
     );
+  }
+
+  podeAdicionarNaRota(demanda: Demanda | null): boolean {
+    if (!demanda) return false;
+
+    if (demanda.status !== 'EM_ANDAMENTO') return false;
+
+    if (this.ehAdministrador()) return true;
+
+    return (
+      this.ehExecutor() &&
+      demanda.executor?.id === this.usuarioLogado?.id
+    );
+  }
+
+  adicionarNaRota(): void {
+    if (!this.demandaSelecionada?.id) {
+      this.exibirMensagem('Demanda sem ID.', 'erro');
+      return;
+    }
+
+    if (!this.podeAdicionarNaRota(this.demandaSelecionada)) {
+      this.exibirMensagem('Você não pode adicionar esta demanda à rota.', 'erro');
+      return;
+    }
+
+    const demandasSalvas = localStorage.getItem('demandasRota');
+    const demandasRota: Demanda[] = demandasSalvas ? JSON.parse(demandasSalvas) : [];
+
+    const jaExiste = demandasRota.some(
+      (demanda) => demanda.id === this.demandaSelecionada?.id
+    );
+
+    if (jaExiste) {
+      this.exibirMensagem('Essa demanda já está na rota.', 'erro');
+      this.router.navigate(['/rotas']);
+      return;
+    }
+
+    demandasRota.push(this.demandaSelecionada);
+    localStorage.setItem('demandasRota', JSON.stringify(demandasRota));
+
+    this.exibirMensagem('Demanda adicionada à rota!', 'sucesso');
+    this.router.navigate(['/rotas']);
   }
 
   podeCancelarDemanda(demanda: Demanda): boolean {

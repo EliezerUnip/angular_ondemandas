@@ -171,4 +171,8 @@ export class Home implements OnInit {
         return status;
     }
   }
+
+  irParaRotas(): void {
+    this.router.navigate(['/rotas']);
+  }
 }

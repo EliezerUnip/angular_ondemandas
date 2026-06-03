@@ -124,7 +124,7 @@
         <div class="empty-state" *ngIf="demandasFiltradas.length === 0">
           <span class="material-icons">assignment_late</span>
           <h3>Nenhuma demanda cadastrada</h3>
-          <p>Quando uma demanda for criada, ela aparecerá aqui.</p>
+          <p>Quando houver demandas disponíveis, elas aparecerão aqui.</p>
         </div>
 
         <div
@@ -305,9 +305,21 @@
       </div>
 
       <div class="modal-footer">
+
+        <button
+          type="button"
+          class="route-btn"
+          *ngIf="podeAdicionarNaRota(demandaSelecionada)"
+          (click)="adicionarNaRota()"
+        >
+          <span class="material-icons">route</span>
+          Adicionar à rota
+        </button>
+
         <button type="button" class="secondary-btn" (click)="fecharModalCriar()">
           Cancelar
         </button>
+
 
         <button type="submit" class="save-btn" [disabled]="formDemanda.invalid">
           <span class="material-icons">save</span>
@@ -460,7 +472,7 @@
       <button
         type="button"
         class="danger-btn"
-        *ngIf="demandaSelecionada.status !== 'CONCLUIDA' && demandaSelecionada.status !== 'CANCELADA'"
+        *ngIf="podeCancelarDemanda(demandaSelecionada)"
         (click)="cancelarDemanda()"
       >
         <span class="material-icons">cancel</span>
@@ -470,7 +482,7 @@
       <button
         type="button"
         class="capture-btn"
-        *ngIf="demandaSelecionada.status === 'PENDENTE'"
+        *ngIf="podeCaptarDemanda(demandaSelecionada)"
         (click)="captarDemanda()"
       >
         <span class="material-icons">engineering</span>
@@ -480,7 +492,7 @@
       <button
         type="button"
         class="save-btn"
-        *ngIf="demandaSelecionada.status === 'EM_ANDAMENTO'"
+        *ngIf="podeConcluirDemanda(demandaSelecionada)"
         (click)="concluirDemanda()"
       >
         <span class="material-icons">check_circle</span>

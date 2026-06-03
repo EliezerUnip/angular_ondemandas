@@ -1,0 +1,98 @@
+<div class="rotas-page">
+
+  <aside class="left-bar">
+    <button class="home-button" (click)="irParaHome()">
+      <span class="material-icons">home</span>
+    </button>
+
+    <button class="side-button" (click)="irParaDemandas()">
+      <span class="material-icons">assignment</span>
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <section class="header-card">
+      <div>
+        <h1>Programação de Rotas</h1>
+        <p>Organize as demandas selecionadas para execução.</p>
+      </div>
+
+      <button
+        class="clear-btn"
+        *ngIf="demandasRota.length > 0"
+        (click)="limparRota()"
+      >
+        <span class="material-icons">delete_sweep</span>
+        Limpar rota
+      </button>
+    </section>
+
+    <section class="content-grid">
+
+      <div class="route-list">
+
+        <div class="section-title">
+          <span class="material-icons">route</span>
+          <h2>Demandas adicionadas</h2>
+        </div>
+
+        <div class="empty-state" *ngIf="demandasRota.length === 0">
+          <span class="material-icons">map</span>
+          <h3>Nenhuma demanda adicionada à rota</h3>
+          <p>Volte para a tela de demandas e adicione uma demanda em andamento.</p>
+
+          <button class="primary-btn" (click)="irParaDemandas()">
+            Ir para Demandas
+          </button>
+        </div>
+
+        <div
+          class="route-card"
+          *ngFor="let demanda of demandasRota; let i = index"
+        >
+          <div class="route-index">
+            {{ i + 1 }}
+          </div>
+
+          <div class="route-info">
+            <h3>{{ demanda.tipo.tipoDemanda }}</h3>
+
+            <p>
+              <span class="material-icons">location_on</span>
+              {{ demanda.local.nomeLocal }} - {{ demanda.local.cidade }}
+            </p>
+
+            <p>
+              <span class="material-icons">place</span>
+              {{ demanda.local.endereco }}
+            </p>
+
+            <p>
+              <span class="material-icons">person</span>
+              Solicitante: {{ demanda.solicitante.nome }}
+            </p>
+
+            <span class="status-pill">
+              {{ textoStatus(demanda.status) }}
+            </span>
+          </div>
+
+          <button class="remove-btn" (click)="removerDaRota(demanda.id)">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="map-placeholder">
+        <span class="material-icons">map</span>
+        <h2>Mapa da rota</h2>
+        <p>Aqui vamos integrar o Leaflet com os pontos das demandas.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
