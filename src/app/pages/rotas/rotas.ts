@@ -1,53 +1,141 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { Demanda } from '../../models/demandas.model';
+import { RotasService, RotaRequest } from '../../service/rotas.service';
+
+type Perfil = 'SOLICITANTE' | 'EXECUTOR' | 'ADMINISTRADOR';
+
+interface UsuarioLogado {
+  id: number;
+  nome: string;
+  email: string;
+  atribuicao: Perfil;
+}
 
 @Component({
   selector: 'app-rotas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './rotas.html',
   styleUrl: './rotas.css',
 })
 export class Rotas implements OnInit {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private rotasService: RotasService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  demandasRota: Demanda[] = [];
+  usuarioLogado: UsuarioLogado | null = null;
+  rotas: any[] = [];
+
+  modalCriarAberto = false;
+
+  novaRota: RotaRequest = {
+    nomeRota: '',
+    dataExecucao: '',
+    executorId: 0,
+    veiculoId: null,
+    kmInicial: null,
+    descricaoRota: '',
+  };
 
   ngOnInit(): void {
-    this.carregarDemandasDaRota();
+    const carregouUsuario = this.carregarUsuarioLogado();
+
+    if (carregouUsuario) {
+      this.carregarRotas();
+    }
   }
 
-  carregarDemandasDaRota(): void {
-    const demandasSalvas = localStorage.getItem('demandasRota');
+  carregarUsuarioLogado(): boolean {
+    const usuarioSalvo = sessionStorage.getItem('usuarioLogado');
 
-    if (!demandasSalvas) {
-      this.demandasRota = [];
+    if (!usuarioSalvo) {
+      this.router.navigate(['/login']);
+      return false;
+    }
+
+    this.usuarioLogado = JSON.parse(usuarioSalvo);
+    return true;
+  }
+
+  carregarRotas(): void {
+    if (!this.usuarioLogado?.id) return;
+
+    if (this.usuarioLogado.atribuicao === 'ADMINISTRADOR') {
+      this.rotasService.listar().subscribe({
+        next: (dados) => {
+          this.rotas = dados;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          alert('Erro ao carregar rotas');
+        },
+      });
+
       return;
     }
 
-    this.demandasRota = JSON.parse(demandasSalvas);
+    this.rotasService.listarPorExecutor(this.usuarioLogado.id).subscribe({
+      next: (dados) => {
+        this.rotas = dados;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        alert('Erro ao carregar rotas do executor');
+      },
+    });
   }
 
-  removerDaRota(demandaId?: number): void {
-    if (!demandaId) return;
+  abrirModalCriar(): void {
+    if (!this.usuarioLogado?.id) return;
 
-    this.demandasRota = this.demandasRota.filter(
-      (demanda) => demanda.id !== demandaId
-    );
+    this.novaRota = {
+      nomeRota: '',
+      dataExecucao: '',
+      executorId: this.usuarioLogado.id,
+      veiculoId: null,
+      kmInicial: null,
+      descricaoRota: '',
+    };
 
-    localStorage.setItem('demandasRota', JSON.stringify(this.demandasRota));
+    this.modalCriarAberto = true;
+    this.cdr.detectChanges();
   }
 
-  limparRota(): void {
-    const confirmar = confirm('Deseja limpar todas as demandas da rota?');
+  fecharModalCriar(): void {
+    this.modalCriarAberto = false;
+    this.cdr.detectChanges();
+  }
 
-    if (!confirmar) return;
+  criarRota(): void {
+    if (!this.novaRota.nomeRota.trim()) {
+      alert('Informe o nome da rota');
+      return;
+    }
 
-    this.demandasRota = [];
-    localStorage.removeItem('demandasRota');
+    if (!this.novaRota.dataExecucao) {
+      alert('Informe a data de execução');
+      return;
+    }
+
+    this.rotasService.criar(this.novaRota).subscribe({
+      next: () => {
+        alert('Rota criada com sucesso!');
+        this.fecharModalCriar();
+        this.carregarRotas();
+      },
+      error: () => {
+        alert('Erro ao criar rota');
+      },
+    });
+  }
+
+  abrirRota(rota: any): void {
+    this.router.navigate(['/rotas', rota.id]);
   }
 
   irParaHome(): void {
@@ -60,8 +148,8 @@ export class Rotas implements OnInit {
 
   textoStatus(status: string): string {
     switch (status) {
-      case 'PENDENTE':
-        return 'Pendente';
+      case 'PROGRAMADA':
+        return 'Programada';
       case 'EM_ANDAMENTO':
         return 'Em andamento';
       case 'CONCLUIDA':

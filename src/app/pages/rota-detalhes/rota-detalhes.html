@@ -1,0 +1,130 @@
+<div class="rota-detalhes-page">
+
+  <aside class="left-bar">
+    <button class="home-button" (click)="irParaRotas()">
+      <span class="material-icons">arrow_back</span>
+    </button>
+
+    <button class="side-button" (click)="irParaDemandas()">
+      <span class="material-icons">assignment</span>
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="empty-state" *ngIf="carregando">
+      <span class="material-icons">hourglass_empty</span>
+      <h3>Carregando rota...</h3>
+    </div>
+
+    <div class="empty-state" *ngIf="erroCarregamento">
+      <span class="material-icons">error</span>
+      <h3>{{ erroCarregamento }}</h3>
+
+      <button class="primary-btn" (click)="irParaRotas()">
+        Voltar
+      </button>
+    </div>
+
+    <div *ngIf="rota">
+
+      <section class="header-card">
+        <div>
+          <h1>{{ rota.nomeRota }}</h1>
+
+          <p>
+            <span class="material-icons">event</span>
+            {{ rota.dataExecucao | date:'dd/MM/yyyy' }}
+          </p>
+
+          <p>
+            <span class="material-icons">engineering</span>
+            Executor: {{ rota.executor?.nome }}
+          </p>
+
+          <p *ngIf="rota.veiculo">
+            <span class="material-icons">directions_car</span>
+            Veículo: {{ rota.veiculo?.modeloVeiculo }}
+          </p>
+
+          <p *ngIf="rota.kmInicial">
+            <span class="material-icons">speed</span>
+            KM inicial: {{ rota.kmInicial }}
+          </p>
+        </div>
+
+        <span class="status-badge">
+          {{ textoStatusRota(rota.status) }}
+        </span>
+      </section>
+
+      <section class="content-grid">
+
+        <div class="demandas-area">
+
+          <div class="section-title">
+            <span class="material-icons">assignment</span>
+            <h2>Demandas da rota</h2>
+          </div>
+
+          <div class="empty-state" *ngIf="demandasDaRota.length === 0">
+            <span class="material-icons">playlist_add</span>
+            <h3>Nenhuma demanda adicionada</h3>
+            <p>Volte para demandas e adicione uma demanda a esta rota.</p>
+
+            <button class="primary-btn" (click)="irParaDemandas()">
+              Ir para Demandas
+            </button>
+          </div>
+
+          <div
+            class="demanda-card"
+            *ngFor="let item of demandasDaRota"
+          >
+            <div class="ordem">
+              {{ item.ordem }}
+            </div>
+
+            <div class="demanda-info">
+              <h3>{{ item.demanda.tipo.tipoDemanda }}</h3>
+
+              <p>
+                <span class="material-icons">location_on</span>
+                {{ item.demanda.local.nomeLocal }} - {{ item.demanda.local.cidade }}
+              </p>
+
+              <p>
+                <span class="material-icons">place</span>
+                {{ item.demanda.local.endereco }}
+              </p>
+
+              <p>
+                <span class="material-icons">person</span>
+                Solicitante: {{ item.demanda.solicitante.nome }}
+              </p>
+
+              <span class="status-demanda">
+                {{ textoStatusDemanda(item.demanda.status) }}
+              </span>
+            </div>
+
+            <button class="remove-btn" (click)="removerDemanda(item)">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="map-area">
+          <span class="material-icons">map</span>
+          <h2>Mapa da rota</h2>
+          <p>Depois vamos renderizar aqui os pontos e o trajeto com Leaflet.</p>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div> 

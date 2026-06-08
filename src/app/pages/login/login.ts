@@ -47,7 +47,7 @@ export class Login {
       })
       .subscribe({
         next: (usuario) => {
-          localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+          sessionStorage.setItem('usuarioLogado', JSON.stringify(usuario));
           this.redirecionarPorPerfil(usuario);
         },
         error: () => {

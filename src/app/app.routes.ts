@@ -8,6 +8,7 @@ import { Veiculos } from './pages/veiculos/veiculos';
 import { Locais } from './pages/locais/locais';
 import { Demandas } from './pages/demandas/demandas';
 import { Rotas } from './pages/rotas/rotas';
+import { RotaDetalhes } from './pages/rota-detalhes/rota-detalhes';
 
 
 import { perfilGuard } from './guards/perfil.guard';
@@ -58,12 +59,19 @@ export const routes: Routes = [
   },
 
   {
+    path: 'rotas/:id',
+    component: RotaDetalhes,
+    canActivate: [perfilGuard],
+    data: { perfis: ['EXECUTOR', 'ADMINISTRADOR'] },
+  },
+
+  {
     path: 'rotas',
     component: Rotas,
     canActivate: [perfilGuard],
     data: { perfis: ['EXECUTOR', 'ADMINISTRADOR'] },
   },
-  
+
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

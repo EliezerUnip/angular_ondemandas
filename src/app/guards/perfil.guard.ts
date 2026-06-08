@@ -13,7 +13,7 @@ interface UsuarioLogado {
 export const perfilGuard: CanActivateFn = (route) => {
   const router = inject(Router);
 
-  const usuarioSalvo = localStorage.getItem('usuarioLogado');
+  const usuarioSalvo = sessionStorage.getItem('usuarioLogado');
 
   if (!usuarioSalvo) {
     router.navigate(['/login']);

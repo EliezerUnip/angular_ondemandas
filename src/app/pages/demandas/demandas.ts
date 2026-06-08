@@ -18,6 +18,7 @@ import { DemandasService } from '../../service/demandas.service';
 import { TipoDemandasService } from '../../service/tipo-demandas.service';
 import { LocalService } from '../../service/local.service';
 import { UsuarioService } from '../../service/usuario.service';
+import { RotasService } from '../../service/rotas.service';
 
 @Component({
   selector: 'app-demandas',
@@ -33,6 +34,7 @@ export class Demandas implements OnInit {
     private demandasService: DemandasService,
     private tipoDemandasService: TipoDemandasService,
     private localService: LocalService,
+    private rotasService: RotasService,
     private usuarioService: UsuarioService,
     private cdr: ChangeDetectorRef,
     private elementRef: ElementRef
@@ -44,6 +46,10 @@ export class Demandas implements OnInit {
   tiposDemandas: TipoDemanda[] = [];
   locais: Local[] = [];
   executores: Usuario[] = [];
+
+  modalSelecionarRotaAberto = false;
+  rotasDisponiveis: any[] = [];
+  rotaSelecionadaId: number | null = null;
 
   usuarioLogado: Usuario | null = null;
   demandaSelecionada: Demanda | null = null;
@@ -98,7 +104,7 @@ export class Demandas implements OnInit {
   }
 
   carregarUsuarioLogado(): void {
-    const usuarioSalvo = localStorage.getItem('usuarioLogado');
+    const usuarioSalvo = sessionStorage.getItem('usuarioLogado')
 
     if (!usuarioSalvo) {
       this.exibirMensagem('Usuário não identificado. Faça login novamente.', 'erro');
@@ -523,38 +529,64 @@ export class Demandas implements OnInit {
     );
   }
 
-  adicionarNaRota(): void {
+  abrirModalSelecionarRota(): void {
     if (!this.demandaSelecionada?.id) {
       this.exibirMensagem('Demanda sem ID.', 'erro');
       return;
     }
 
-    if (!this.podeAdicionarNaRota(this.demandaSelecionada)) {
-      this.exibirMensagem('Você não pode adicionar esta demanda à rota.', 'erro');
+    if (!this.usuarioLogado?.id) {
+      this.exibirMensagem('Usuário não identificado.', 'erro');
       return;
     }
 
-    const demandasSalvas = localStorage.getItem('demandasRota');
-    const demandasRota: Demanda[] = demandasSalvas ? JSON.parse(demandasSalvas) : [];
-
-    const jaExiste = demandasRota.some(
-      (demanda) => demanda.id === this.demandaSelecionada?.id
-    );
-
-    if (jaExiste) {
-      this.exibirMensagem('Essa demanda já está na rota.', 'erro');
-      this.router.navigate(['/rotas']);
-      return;
-    }
-
-    demandasRota.push(this.demandaSelecionada);
-    localStorage.setItem('demandasRota', JSON.stringify(demandasRota));
-
-    this.exibirMensagem('Demanda adicionada à rota!', 'sucesso');
-    this.router.navigate(['/rotas']);
+    this.rotasService.listarPorExecutor(this.usuarioLogado.id).subscribe({
+      next: (rotas) => {
+        this.rotasDisponiveis = rotas;
+        this.rotaSelecionadaId = null;
+        this.modalSelecionarRotaAberto = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.exibirMensagem('Erro ao carregar rotas.', 'erro');
+      },
+    });
   }
 
-  podeCancelarDemanda(demanda: Demanda): boolean {
+  fecharModalSelecionarRota(): void {
+    this.modalSelecionarRotaAberto = false;
+    this.rotaSelecionadaId = null;
+  }
+
+  confirmarAdicionarNaRota(): void {
+    if (!this.demandaSelecionada?.id) {
+      this.exibirMensagem('Demanda sem ID.', 'erro');
+      return;
+    }
+
+    if (!this.rotaSelecionadaId) {
+      this.exibirMensagem('Selecione uma rota.', 'erro');
+      return;
+    }
+
+    this.rotasService
+      .adicionarDemanda(this.rotaSelecionadaId, this.demandaSelecionada.id)
+      .subscribe({
+        next: () => {
+          this.exibirMensagem('Demanda adicionada à rota!', 'sucesso');
+          this.fecharModalSelecionarRota();
+          this.fecharModalDetalhes();
+          this.router.navigate(['/rotas', this.rotaSelecionadaId]);
+        },
+        error: () => {
+          this.exibirMensagem('Erro ao adicionar demanda à rota.', 'erro');
+        },
+      });
+  }
+
+  podeCancelarDemanda(demanda: Demanda | null): boolean {
+    if (!demanda) return false;
+
     if (demanda.status === 'CONCLUIDA' || demanda.status === 'CANCELADA') {
       return false;
     }

@@ -41,7 +41,7 @@ export class Home implements OnInit {
   }
 
   carregarUsuarioLogado(): void {
-    const usuarioSalvo = localStorage.getItem('usuarioLogado');
+    const usuarioSalvo = sessionStorage.getItem('usuarioLogado')
 
     if (!usuarioSalvo) {
       this.router.navigate(['/login']);
@@ -134,7 +134,7 @@ export class Home implements OnInit {
   }
 
   logout(): void {
-    localStorage.clear();
+    sessionStorage.clear();
     this.router.navigate(['/login']);
   }
 

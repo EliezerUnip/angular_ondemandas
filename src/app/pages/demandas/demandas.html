@@ -306,15 +306,6 @@
 
       <div class="modal-footer">
 
-        <button
-          type="button"
-          class="route-btn"
-          *ngIf="podeAdicionarNaRota(demandaSelecionada)"
-          (click)="adicionarNaRota()"
-        >
-          <span class="material-icons">route</span>
-          Adicionar à rota
-        </button>
 
         <button type="button" class="secondary-btn" (click)="fecharModalCriar()">
           Cancelar
@@ -481,12 +472,12 @@
 
       <button
         type="button"
-        class="capture-btn"
-        *ngIf="podeCaptarDemanda(demandaSelecionada)"
-        (click)="captarDemanda()"
+        class="route-btn"
+        *ngIf="demandaSelecionada.status === 'PENDENTE' && ehExecutor()"
+        (click)="abrirModalSelecionarRota()"
       >
-        <span class="material-icons">engineering</span>
-        Captar
+        <span class="material-icons">route</span>
+        Adicionar à rota
       </button>
 
       <button
@@ -501,6 +492,65 @@
 
     </div>
 
+  </div>
+
+  <!-- MODAL SELECIONAR ROTA -->
+  <div
+    class="modal-overlay"
+    *ngIf="modalSelecionarRotaAberto"
+    (click)="fecharModalSelecionarRota()"
+  >
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h2>Adicionar à rota</h2>
+          <p>Escolha uma rota para inserir esta demanda.</p>
+        </div>
+
+        <button type="button" class="close-btn" (click)="fecharModalSelecionarRota()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label>Rota disponível</label>
+
+        <select [(ngModel)]="rotaSelecionadaId">
+          <option [ngValue]="null">Selecione uma rota</option>
+
+          <option
+            *ngFor="let rota of rotasDisponiveis"
+            [ngValue]="rota.id"
+          >
+            {{ rota.nomeRota }} - {{ rota.dataExecucao | date:'dd/MM/yyyy' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="empty-state" *ngIf="rotasDisponiveis.length === 0">
+        <span class="material-icons">route</span>
+        <h3>Nenhuma rota encontrada</h3>
+        <p>Crie uma rota antes de adicionar demandas.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" (click)="fecharModalSelecionarRota()">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="route-btn"
+          [disabled]="!rotaSelecionadaId"
+          (click)="confirmarAdicionarNaRota()"
+        >
+          <span class="material-icons">add_road</span>
+          Confirmar
+        </button>
+      </div>
+
+    </div>
   </div>
 
 </div>
