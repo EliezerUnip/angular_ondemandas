@@ -5,8 +5,12 @@
       <span class="material-icons">arrow_back</span>
     </button>
 
-    <button class="side-button" (click)="irParaDemandas()">
-      <span class="material-icons">assignment</span>
+    <button
+      class="side-button"
+      *ngIf="podeAlterarDemandas()"
+      (click)="abrirModalDemandas()"
+    >
+      <span class="material-icons">playlist_add</span>
     </button>
   </aside>
 
@@ -44,7 +48,7 @@
 
           <p *ngIf="rota.veiculo">
             <span class="material-icons">directions_car</span>
-            Veículo: {{ rota.veiculo?.modeloVeiculo }}
+            Veículo: {{ rota.veiculo?.marcaVeiculo }} {{ rota.veiculo?.modeloVeiculo }}
           </p>
 
           <p *ngIf="rota.kmInicial">
@@ -53,9 +57,47 @@
           </p>
         </div>
 
-        <span class="status-badge">
-          {{ textoStatusRota(rota.status) }}
-        </span>
+        <div class="header-actions">
+          <span class="status-badge">
+            {{ textoStatusRota(rota.status) }}
+          </span>
+
+          <button
+            class="primary-btn"
+            *ngIf="rota.status === 'PROGRAMADA'"
+            (click)="abrirModalIniciar()"
+          >
+            <span class="material-icons">play_arrow</span>
+            Iniciar Rota
+          </button>
+
+          <button
+            class="primary-btn"
+            *ngIf="rota.status === 'EM_ANDAMENTO'"
+            (click)="pausarRota()"
+          >
+            <span class="material-icons">pause</span>
+            Pausar Rota
+          </button>
+
+          <button
+            class="primary-btn"
+            *ngIf="rota.status === 'PAUSADA'"
+            (click)="retomarRota()"
+          >
+            <span class="material-icons">play_arrow</span>
+            Retomar Rota
+          </button>
+
+          <button
+            class="primary-btn"
+            *ngIf="podeAlterarDemandas()"
+            (click)="abrirModalDemandas()"
+          >
+            <span class="material-icons">playlist_add</span>
+            Adicionar Demandas
+          </button>
+        </div>
       </section>
 
       <section class="content-grid">
@@ -70,10 +112,15 @@
           <div class="empty-state" *ngIf="demandasDaRota.length === 0">
             <span class="material-icons">playlist_add</span>
             <h3>Nenhuma demanda adicionada</h3>
-            <p>Volte para demandas e adicione uma demanda a esta rota.</p>
+            <p>Adicione demandas pendentes sem sair desta rota.</p>
 
-            <button class="primary-btn" (click)="irParaDemandas()">
-              Ir para Demandas
+            <button
+              class="primary-btn"
+              *ngIf="podeAlterarDemandas()"
+              (click)="abrirModalDemandas()"
+            >
+              <span class="material-icons">playlist_add</span>
+              Adicionar Demandas
             </button>
           </div>
 
@@ -108,7 +155,11 @@
               </span>
             </div>
 
-            <button class="remove-btn" (click)="removerDemanda(item)">
+            <button
+              class="remove-btn"
+              *ngIf="podeAlterarDemandas()"
+              (click)="removerDemanda(item)"
+            >
               <span class="material-icons">close</span>
             </button>
           </div>
@@ -127,4 +178,226 @@
 
   </main>
 
-</div> 
+  <!-- MODAL INICIAR ROTA -->
+  <div
+    class="modal-overlay"
+    *ngIf="modalIniciarAberto"
+    (click)="fecharModalIniciar()"
+  >
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h2>Iniciar Rota</h2>
+          <p>Selecione o veículo e informe o KM inicial.</p>
+        </div>
+
+        <button class="close-btn" (click)="fecharModalIniciar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Veículo</label>
+
+          <select [(ngModel)]="veiculoSelecionadoId">
+            <option [ngValue]="null">Selecione um veículo</option>
+
+            <option
+              *ngFor="let veiculo of veiculos"
+              [ngValue]="veiculo.id"
+            >
+              {{ veiculo.marcaVeiculo }} {{ veiculo.modeloVeiculo }} - {{ veiculo.placaVeiculo }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>KM inicial</label>
+
+          <input
+            type="number"
+            placeholder="Ex: 52000"
+            [(ngModel)]="kmInicialInformado"
+          />
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary-btn" (click)="fecharModalIniciar()">
+          Cancelar
+        </button>
+
+        <button
+          class="primary-btn"
+          (click)="iniciarRota()"
+          [disabled]="!veiculoSelecionadoId || kmInicialInformado === null"
+        >
+          <span class="material-icons">play_arrow</span>
+          Iniciar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL ADICIONAR DEMANDAS -->
+  <div
+    class="modal-overlay"
+    *ngIf="modalDemandasAberto"
+    (click)="fecharModalDemandas()"
+  >
+    <div class="modal-container modal-demandas" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h2>Adicionar Demandas</h2>
+          <p>Selecione demandas pendentes para incluir nesta rota.</p>
+        </div>
+
+        <button class="close-btn" (click)="fecharModalDemandas()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="search-box-modal">
+        <span class="material-icons">search</span>
+
+        <input
+          type="text"
+          placeholder="Buscar por tipo, local, cidade, endereço, solicitante ou observações"
+          [(ngModel)]="termoBuscaDemandas"
+          (input)="aplicarFiltroDemandasPendentes()"
+        />
+      </div>
+
+      <div class="empty-state" *ngIf="demandasPendentesFiltradas.length === 0">
+        <span class="material-icons">assignment_late</span>
+        <h3>Nenhuma demanda pendente encontrada</h3>
+      </div>
+
+      <div class="demandas-modal-list">
+
+        <div
+          class="demanda-modal-card"
+          *ngFor="let demanda of demandasPendentesFiltradas"
+        >
+          <div
+            class="demanda-modal-content"
+            (click)="abrirDetalhesDemanda(demanda)"
+          >
+            <h3>{{ demanda.tipo.tipoDemanda }}</h3>
+
+            <p>
+              <span class="material-icons">location_on</span>
+              {{ demanda.local.nomeLocal }} - {{ demanda.local.cidade }}
+            </p>
+
+            <p>
+              <span class="material-icons">place</span>
+              {{ demanda.local.endereco }}
+            </p>
+
+            <p>
+              <span class="material-icons">person</span>
+              {{ demanda.solicitante.nome }}
+            </p>
+
+            <span class="status-demanda">
+              {{ textoStatusDemanda(demanda.status) }}
+            </span>
+          </div>
+
+          <button
+            class="primary-btn"
+            (click)="adicionarDemandaNaRota(demanda)"
+          >
+            <span class="material-icons">add</span>
+            Adicionar
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DETALHE DA DEMANDA -->
+  <div
+    class="modal-overlay"
+    *ngIf="demandaSelecionada"
+    (click)="fecharDetalhesDemanda()"
+  >
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h2>Detalhes da Demanda</h2>
+          <p>Confira as informações antes de adicionar à rota.</p>
+        </div>
+
+        <button class="close-btn" (click)="fecharDetalhesDemanda()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="detail-grid-modal">
+
+        <div class="detail-item">
+          <label>Tipo</label>
+          <span>{{ demandaSelecionada.tipo.tipoDemanda }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Local</label>
+          <span>{{ demandaSelecionada.local.nomeLocal }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Cidade</label>
+          <span>{{ demandaSelecionada.local.cidade }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Endereço</label>
+          <span>{{ demandaSelecionada.local.endereco }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Solicitante</label>
+          <span>{{ demandaSelecionada.solicitante.nome }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Status</label>
+          <span>{{ textoStatusDemanda(demandaSelecionada.status) }}</span>
+        </div>
+
+        <div class="detail-item detail-wide">
+          <label>Observações</label>
+          <span>{{ demandaSelecionada.observacoes || 'Sem observações' }}</span>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary-btn" (click)="fecharDetalhesDemanda()">
+          Voltar
+        </button>
+
+        <button
+          class="primary-btn"
+          (click)="adicionarDemandaNaRota(demandaSelecionada)"
+        >
+          <span class="material-icons">add</span>
+          Adicionar à rota
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

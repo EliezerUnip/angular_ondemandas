@@ -11,6 +11,11 @@ export interface RotaRequest {
   descricaoRota?: string;
 }
 
+export interface IniciarRotaRequest {
+  veiculoId: number;
+  kmInicial: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -46,4 +51,18 @@ export class RotasService {
   removerDemanda(rotaId: number, demandaId: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/${rotaId}/demandas/${demandaId}`);
   }
+
+  iniciarRota(rotaId: number, dados: IniciarRotaRequest): Observable<any> {
+    return this.http.put<any>(`${this.api}/${rotaId}/iniciar`, dados);
+  }
+
+  pausarRota(rotaId: number): Observable<any> {
+    return this.http.put<any>(`${this.api}/${rotaId}/pausar`, {});
+  }
+
+  retomarRota(rotaId: number): Observable<any> {
+    return this.http.put<any>(`${this.api}/${rotaId}/retomar`, {});
+  }
+
+
 }
