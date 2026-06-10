@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
+// teste
 import { Veiculo } from '../../models/veiculos.model';
 import { VeiculoService } from '../../service/veiculo.service';
 
@@ -30,6 +30,9 @@ export class RotaDetalhes implements OnInit {
 
   rota: any = null;
   demandasDaRota: any[] = [];
+
+  modalFinalizarAberto = false;
+  kmFinalInformado: number | null = null;
 
   carregando = true;
   erroCarregamento = '';
@@ -330,5 +333,45 @@ export class RotaDetalhes implements OnInit {
 
   podeAlterarDemandas(): boolean {
     return this.rota?.status === 'PROGRAMADA' || this.rota?.status === 'PAUSADA';
+  }
+
+  abrirModalFinalizar(): void {
+    this.kmFinalInformado = null;
+    this.modalFinalizarAberto = true;
+    this.cdr.detectChanges();
+  }
+
+  fecharModalFinalizar(): void {
+    this.modalFinalizarAberto = false;
+    this.kmFinalInformado = null;
+    this.cdr.detectChanges();
+  }
+
+  finalizarRota(): void {
+    if (!this.rota?.id) {
+      alert('Rota não identificada');
+      return;
+    }
+
+    if (this.kmFinalInformado === null || this.kmFinalInformado < 0) {
+      alert('Informe um KM final válido');
+      return;
+    }
+
+    this.rotasService
+      .finalizarRota(this.rota.id, {
+        kmFinal: this.kmFinalInformado,
+      })
+      .subscribe({
+        next: (rotaAtualizada) => {
+          this.rota = rotaAtualizada;
+          this.fecharModalFinalizar();
+          alert('Rota finalizada com sucesso!');
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          alert('Erro ao finalizar rota');
+        },
+      });
   }
 }

@@ -82,6 +82,15 @@
 
           <button
             class="primary-btn"
+            *ngIf="rota.status === 'EM_ANDAMENTO'"
+            (click)="abrirModalFinalizar()"
+          >
+            <span class="material-icons">flag</span>
+            Finalizar Rota
+          </button>
+
+          <button
+            class="primary-btn"
             *ngIf="rota.status === 'PAUSADA'"
             (click)="retomarRota()"
           >
@@ -394,6 +403,53 @@
         >
           <span class="material-icons">add</span>
           Adicionar à rota
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL FINALIZAR ROTA -->
+  <div
+    class="modal-overlay"
+    *ngIf="modalFinalizarAberto"
+    (click)="fecharModalFinalizar()"
+  >
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h2>Finalizar Rota</h2>
+          <p>Informe o KM final registrado no veículo.</p>
+        </div>
+
+        <button class="close-btn" (click)="fecharModalFinalizar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label>KM final</label>
+
+        <input
+          type="number"
+          placeholder="Ex: 132200"
+          [(ngModel)]="kmFinalInformado"
+        />
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary-btn" (click)="fecharModalFinalizar()">
+          Cancelar
+        </button>
+
+        <button
+          class="primary-btn"
+          (click)="finalizarRota()"
+          [disabled]="kmFinalInformado === null"
+        >
+          <span class="material-icons">flag</span>
+          Finalizar
         </button>
       </div>
 

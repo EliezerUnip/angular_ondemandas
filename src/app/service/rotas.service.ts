@@ -16,6 +16,10 @@ export interface IniciarRotaRequest {
   kmInicial: number;
 }
 
+export interface FinalizarRotaRequest {
+  kmFinal: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -62,6 +66,10 @@ export class RotasService {
 
   retomarRota(rotaId: number): Observable<any> {
     return this.http.put<any>(`${this.api}/${rotaId}/retomar`, {});
+  }
+
+  finalizarRota(rotaId: number, dados: FinalizarRotaRequest): Observable<any> {
+    return this.http.put<any>(`${this.api}/${rotaId}/finalizar`, dados);
   }
 
 
