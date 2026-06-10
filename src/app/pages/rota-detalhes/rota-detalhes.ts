@@ -10,6 +10,7 @@ import { Demanda } from '../../models/demandas.model';
 import { DemandasService } from '../../service/demandas.service';
 
 import { RotasService } from '../../service/rotas.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-rota-detalhes',
@@ -34,6 +35,8 @@ export class RotaDetalhes implements OnInit {
   modalFinalizarAberto = false;
   kmFinalInformado: number | null = null;
 
+  distanciaEstimadaKm: number | null = null;
+
   carregando = true;
   erroCarregamento = '';
 
@@ -49,6 +52,10 @@ export class RotaDetalhes implements OnInit {
   demandaSelecionada: Demanda | null = null;
 
   termoBuscaDemandas = '';
+
+  mapa: L.Map | null = null;
+  marcadores: L.Marker[] = [];
+  linhaRota: L.Polyline | null = null;
 
   ngOnInit(): void {
     const rotaId = Number(this.route.snapshot.paramMap.get('id'));
@@ -83,6 +90,8 @@ export class RotaDetalhes implements OnInit {
       next: (dados) => {
         this.demandasDaRota = dados;
         this.cdr.detectChanges();
+        this.inicializarMapa();
+        this.atualizarMapa();
       },
       error: () => {
         this.demandasDaRota = [];
@@ -184,6 +193,11 @@ export class RotaDetalhes implements OnInit {
         this.carregarDemandasDaRota(this.rota.id);
         this.carregarDemandasPendentes();
         this.demandaSelecionada = null;
+
+        setTimeout(() => {
+          this.atualizarMapa();
+        }, 500);
+
         this.cdr.detectChanges();
       },
       error: () => {
@@ -202,6 +216,10 @@ export class RotaDetalhes implements OnInit {
     this.rotasService.removerDemanda(this.rota.id, item.demanda.id).subscribe({
       next: () => {
         this.carregarDemandasDaRota(this.rota.id);
+
+        setTimeout(() => {
+          this.atualizarMapa();
+        }, 500);
       },
       error: () => {
         alert('Erro ao remover demanda da rota');
@@ -372,6 +390,121 @@ export class RotaDetalhes implements OnInit {
         error: () => {
           alert('Erro ao finalizar rota');
         },
+      });
+  }
+
+  inicializarMapa(): void {
+    setTimeout(() => {
+      if (this.mapa) return;
+
+      this.mapa = L.map('mapa-rota').setView([-24.6189, -53.3207], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+      }).addTo(this.mapa);
+
+      this.atualizarMapa();
+    }, 300);
+
+    setTimeout(() => {
+      this.mapa?.invalidateSize();
+    }, 500);
+  }
+
+  atualizarMapa(): void {
+    if (!this.mapa) return;
+
+    this.marcadores.forEach((marcador) => marcador.remove());
+    this.marcadores = [];
+
+    if (this.linhaRota) {
+      this.linhaRota.remove();
+      this.linhaRota = null;
+    }
+
+    this.distanciaEstimadaKm = null;
+
+    const pontos: L.LatLngExpression[] = [];
+
+    this.demandasDaRota.forEach((item) => {
+      const local = item.demanda?.local;
+
+      if (!local?.latitude || !local?.longitude) return;
+
+      const latitude = Number(local.latitude);
+      const longitude = Number(local.longitude);
+
+      if (isNaN(latitude) || isNaN(longitude)) return;
+
+      const ponto: L.LatLngExpression = [latitude, longitude];
+      pontos.push(ponto);
+
+      const numero = item.ordem || pontos.length;
+
+      const iconeNumerado = L.divIcon({
+        className: 'marker-number',
+        html: `<div>${numero}</div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 34],
+      });
+
+      const marcador = L.marker(ponto, { icon: iconeNumerado })
+        .addTo(this.mapa!)
+        .bindPopup(`
+    <strong>${numero}. ${local.nomeLocal}</strong><br>
+    ${local.endereco || ''}<br>
+    ${local.cidade || ''}
+  `);
+
+      this.marcadores.push(marcador);
+    });
+
+    if (pontos.length > 0) {
+      const bounds = L.latLngBounds(pontos);
+      this.mapa.fitBounds(bounds, { padding: [40, 40] });
+    }
+
+    if (pontos.length > 1) {
+      this.desenharRotaPelasRuas(pontos);
+    }
+  }
+
+  desenharRotaPelasRuas(pontos: L.LatLngExpression[]): void {
+    if (!this.mapa || pontos.length < 2) return;
+
+    const coordenadasOsrm = pontos
+      .map((ponto: any) => {
+        const latitude = ponto[0];
+        const longitude = ponto[1];
+
+        return `${longitude},${latitude}`;
+      })
+      .join(';');
+
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordenadasOsrm}?overview=full&geometries=geojson`;
+
+    fetch(url)
+      .then((resposta) => resposta.json())
+      .then((dados) => {
+        if (!dados.routes || dados.routes.length === 0) {
+          this.linhaRota = L.polyline(pontos).addTo(this.mapa!);
+          return;
+        }
+
+        this.distanciaEstimadaKm = dados.routes[0].distance / 1000;
+        this.cdr.detectChanges();
+
+        const coordenadasRota = dados.routes[0].geometry.coordinates.map(
+          (coord: number[]) => [coord[1], coord[0]]
+        );
+
+        this.linhaRota = L.polyline(coordenadasRota).addTo(this.mapa!);
+
+        const bounds = L.latLngBounds(coordenadasRota);
+        this.mapa!.fitBounds(bounds, { padding: [40, 40] });
+      })
+      .catch(() => {
+        this.linhaRota = L.polyline(pontos).addTo(this.mapa!);
       });
   }
 }

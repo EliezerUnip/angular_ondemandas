@@ -57,55 +57,40 @@
           </p>
         </div>
 
-        <div class="header-actions">
-          <span class="status-badge">
-            {{ textoStatusRota(rota.status) }}
-          </span>
+        <div>
+          <h1>{{ rota.nomeRota }}</h1>
 
-          <button
-            class="primary-btn"
-            *ngIf="rota.status === 'PROGRAMADA'"
-            (click)="abrirModalIniciar()"
-          >
-            <span class="material-icons">play_arrow</span>
-            Iniciar Rota
-          </button>
+          <p>
+            <span class="material-icons">event</span>
+            {{ rota.dataExecucao | date:'dd/MM/yyyy' }}
+          </p>
 
-          <button
-            class="primary-btn"
-            *ngIf="rota.status === 'EM_ANDAMENTO'"
-            (click)="pausarRota()"
-          >
-            <span class="material-icons">pause</span>
-            Pausar Rota
-          </button>
+          <p>
+            <span class="material-icons">engineering</span>
+            Executor: {{ rota.executor?.nome }}
+          </p>
 
-          <button
-            class="primary-btn"
-            *ngIf="rota.status === 'EM_ANDAMENTO'"
-            (click)="abrirModalFinalizar()"
-          >
-            <span class="material-icons">flag</span>
-            Finalizar Rota
-          </button>
+          <p *ngIf="rota.veiculo">
+            <span class="material-icons">directions_car</span>
+            Veículo: {{ rota.veiculo?.marcaVeiculo }}
+            {{ rota.veiculo?.modeloVeiculo }}
+          </p>
 
-          <button
-            class="primary-btn"
-            *ngIf="rota.status === 'PAUSADA'"
-            (click)="retomarRota()"
-          >
-            <span class="material-icons">play_arrow</span>
-            Retomar Rota
-          </button>
+          <p *ngIf="rota.kmInicial">
+            <span class="material-icons">speed</span>
+            KM inicial: {{ rota.kmInicial }}
+          </p>
 
-          <button
-            class="primary-btn"
-            *ngIf="podeAlterarDemandas()"
-            (click)="abrirModalDemandas()"
-          >
-            <span class="material-icons">playlist_add</span>
-            Adicionar Demandas
-          </button>
+          <p *ngIf="rota.kmFinal">
+            <span class="material-icons">speed</span>
+            KM final: {{ rota.kmFinal }}
+          </p>
+
+          <p *ngIf="distanciaEstimadaKm !== null">
+            <span class="material-icons">straighten</span>
+            Distância estimada:
+            {{ distanciaEstimadaKm | number:'1.1-1' }} km
+          </p>
         </div>
       </section>
 
@@ -176,9 +161,7 @@
         </div>
 
         <div class="map-area">
-          <span class="material-icons">map</span>
-          <h2>Mapa da rota</h2>
-          <p>Depois vamos renderizar aqui os pontos e o trajeto com Leaflet.</p>
+          <div id="mapa-rota"></div>
         </div>
 
       </section>
