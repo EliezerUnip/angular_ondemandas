@@ -1,0 +1,233 @@
+<div class="relatorios-page">
+
+  <aside class="left-bar">
+    <button class="home-button" (click)="irParaHome()">
+      <span class="material-icons">home</span>
+    </button>
+
+    <button class="side-button" (click)="irParaRotas()">
+      <span class="material-icons">route</span>
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <section class="header-card">
+      <div>
+        <h1>Relatórios Administrativos</h1>
+        <p>Indicadores gerais de desempenho das rotas.</p>
+      </div>
+
+      <button class="primary-btn" (click)="atualizar()">
+        <span class="material-icons">refresh</span>
+        Atualizar
+      </button>
+    </section>
+
+    <div class="empty-state" *ngIf="carregando">
+      <span class="material-icons">hourglass_empty</span>
+      <h3>Carregando relatórios...</h3>
+    </div>
+
+    <div *ngIf="!carregando">
+
+      <section class="kpi-grid">
+
+        <div class="kpi-card">
+          <span class="material-icons">route</span>
+          <div>
+            <label>Total de rotas</label>
+            <strong>{{ totalRotas }}</strong>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="material-icons">check_circle</span>
+          <div>
+            <label>Rotas concluídas</label>
+            <strong>{{ rotasConcluidas }}</strong>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="material-icons">groups</span>
+          <div>
+            <label>Executores analisados</label>
+            <strong>{{ produtividadeExecutores.length }}</strong>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="material-icons">speed</span>
+          <div>
+            <label>KM percorrido</label>
+            <strong>{{ kmTotalPercorrido }} km</strong>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="reports-grid">
+
+        <div class="report-card">
+
+          <div class="report-title">
+            <span class="material-icons">analytics</span>
+            <h2>Relatório de Rotas</h2>
+          </div>
+
+          <div class="metric-line">
+            <span>Programadas</span>
+            <strong>{{ rotasProgramadas }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Em andamento</span>
+            <strong>{{ rotasEmAndamento }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Pausadas</span>
+            <strong>{{ rotasPausadas }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Concluídas</span>
+            <strong>{{ rotasConcluidas }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Canceladas</span>
+            <strong>{{ rotasCanceladas }}</strong>
+          </div>
+
+          <div class="progress-area">
+            <label>Taxa de conclusão</label>
+
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="taxaConclusaoRotas"
+              ></div>
+            </div>
+
+            <strong>{{ taxaConclusaoRotas }}%</strong>
+          </div>
+
+        </div>
+
+        <div class="report-card">
+
+          <div class="report-title">
+            <span class="material-icons">insights</span>
+            <h2>Relatório Operacional</h2>
+          </div>
+
+          <div class="metric-line">
+            <span>KM total percorrido</span>
+            <strong>{{ kmTotalPercorrido }} km</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Média por rota</span>
+            <strong>{{ mediaKmPorRotaConcluida }} km</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Rotas com KM informado</span>
+            <strong>{{ rotasComKmInformado }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Rotas concluídas</span>
+            <strong>{{ rotasConcluidas }}</strong>
+          </div>
+
+          <div class="metric-line">
+            <span>Rotas pendentes</span>
+            <strong>{{ totalRotas - rotasConcluidas }}</strong>
+          </div>
+
+          <div class="progress-area">
+            <label>Eficiência operacional</label>
+
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="taxaConclusaoRotas"
+              ></div>
+            </div>
+
+            <strong>{{ taxaConclusaoRotas }}%</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="executor-report">
+
+        <div class="report-card full-width">
+
+          <div class="report-title">
+            <span class="material-icons">groups</span>
+            <h2>Produtividade por Executor</h2>
+          </div>
+
+          <p class="report-description">
+            Comparativo entre rotas concluídas e quilometragem percorrida por executor.
+          </p>
+
+          <div class="empty-state small" *ngIf="produtividadeExecutores.length === 0">
+            <span class="material-icons">info</span>
+            <h3>Nenhum dado disponível</h3>
+            <p>Finalize rotas com KM inicial e KM final para gerar este relatório.</p>
+          </div>
+
+          <div class="table-wrapper" *ngIf="produtividadeExecutores.length > 0">
+            <table>
+              <thead>
+              <tr>
+                <th>Executor</th>
+                <th>Rotas concluídas</th>
+                <th>KM total</th>
+                <th>Média KM/rota</th>
+                <th>Análise</th>
+              </tr>
+              </thead>
+
+              <tbody>
+              <tr *ngFor="let item of produtividadeExecutores">
+                <td>{{ item.executor }}</td>
+                <td>{{ item.rotasConcluidas }}</td>
+                <td>{{ item.kmTotal }} km</td>
+                <td>{{ item.mediaKmPorRota }} km</td>
+                <td>
+                    <span
+                      class="analise-pill"
+                      [ngClass]="{
+                        'analise-ok': item.mediaKmPorRota <= mediaKmPorRotaConcluida,
+                        'analise-alerta': item.mediaKmPorRota > mediaKmPorRotaConcluida
+                      }"
+                    >
+                      {{
+                        item.mediaKmPorRota <= mediaKmPorRotaConcluida
+                          ? 'Dentro da média'
+                          : 'Alto deslocamento'
+                      }}
+                    </span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>

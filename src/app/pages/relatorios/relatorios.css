@@ -1,0 +1,296 @@
+* {
+  box-sizing: border-box;
+}
+
+.relatorios-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f3f4f6;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.left-bar {
+  width: 76px;
+  background: #4c84ee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 12px;
+  gap: 16px;
+}
+
+.home-button,
+.side-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  background: #eef2ff;
+  color: #4c84ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.home-button:hover,
+.side-button:hover {
+  background: white;
+}
+
+.main-content {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.header-card {
+  background: white;
+  border-radius: 20px;
+  padding: 26px 30px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-card h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: #111827;
+}
+
+.header-card p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.primary-btn {
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  background: #4c84ee;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary-btn:hover {
+  background: #2563eb;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-card .material-icons {
+  font-size: 42px;
+  color: #4c84ee;
+}
+
+.kpi-card label {
+  display: block;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.kpi-card strong {
+  font-size: 28px;
+  color: #111827;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.report-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.report-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.report-title h2 {
+  margin: 0;
+  color: #111827;
+}
+
+.report-title .material-icons {
+  color: #4c84ee;
+}
+
+.metric-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.metric-line span {
+  color: #6b7280;
+}
+
+.metric-line strong {
+  color: #111827;
+}
+
+.progress-area {
+  margin-top: 24px;
+}
+
+.progress-area label {
+  display: block;
+  margin-bottom: 10px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4c84ee;
+  border-radius: 999px;
+}
+
+.progress-area strong {
+  color: #111827;
+  font-size: 18px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.empty-state .material-icons {
+  font-size: 70px;
+  color: #4c84ee;
+}
+
+.empty-state h3 {
+  margin-top: 12px;
+  color: #111827;
+}
+
+@media (max-width: 900px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.executor-report {
+  margin-top: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.report-description {
+  color: #6b7280;
+  margin: -8px 0 22px;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.table-wrapper thead {
+  background: #f9fafb;
+}
+
+.table-wrapper th {
+  padding: 16px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-wrapper td {
+  padding: 16px;
+  color: #111827;
+  font-size: 15px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table-wrapper tbody tr:hover {
+  background: #f9fafb;
+}
+
+.analise-pill {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.analise-ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.analise-alerta {
+  background: #fef3c7;
+  color: #b45309;
+}

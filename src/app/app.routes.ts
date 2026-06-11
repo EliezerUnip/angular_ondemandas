@@ -9,6 +9,8 @@ import { Locais } from './pages/locais/locais';
 import { Demandas } from './pages/demandas/demandas';
 import { Rotas } from './pages/rotas/rotas';
 import { RotaDetalhes } from './pages/rota-detalhes/rota-detalhes';
+import { Relatorios } from './pages/relatorios/relatorios';
+
 
 
 import { perfilGuard } from './guards/perfil.guard';
@@ -70,6 +72,13 @@ export const routes: Routes = [
     component: Rotas,
     canActivate: [perfilGuard],
     data: { perfis: ['EXECUTOR', 'ADMINISTRADOR'] },
+  },
+
+  {
+    path: 'relatorios',
+    component: Relatorios,
+    canActivate: [perfilGuard],
+    data: { perfis: ['ADMINISTRADOR'] },
   },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },

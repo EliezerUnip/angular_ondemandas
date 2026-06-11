@@ -113,6 +113,10 @@ export class Home implements OnInit {
     this.router.navigate(['/usuarios']);
   }
 
+  irParaRelatorios(): void {
+    this.router.navigate(['/relatorios']);
+  }
+
   irParaTiposDemandas(): void {
     this.router.navigate(['/tipos-demandas']);
   }
@@ -175,4 +179,7 @@ export class Home implements OnInit {
   irParaRotas(): void {
     this.router.navigate(['/rotas']);
   }
+
+
+
 }
