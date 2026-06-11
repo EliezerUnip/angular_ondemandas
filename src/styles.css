@@ -39,3 +39,70 @@
     0 6px 14px rgba(37, 99, 235, 0.45),
     0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
+
+button.add-rota-btn {
+  min-width: 180px !important;
+  height: 48px !important;
+
+  border: none !important;
+  border-radius: 14px !important;
+
+  padding: 0 22px !important;
+
+  background: #4c84ee !important;
+  color: #ffffff !important;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  cursor: pointer !important;
+
+  box-shadow: 0 6px 14px rgba(76, 132, 238, 0.28) !important;
+}
+
+button.add-rota-btn:hover {
+  background: #2563eb !important;
+  transform: translateY(-1px);
+}
+
+button.add-rota-btn .material-icons {
+  color: #ffffff !important;
+  font-size: 22px !important;
+}
+
+button.primary-btn.add-rota-btn {
+  min-width: 180px !important;
+  height: 48px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 0 22px !important;
+
+  background: #4c84ee !important;
+  color: #ffffff !important;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  cursor: pointer !important;
+  box-shadow: 0 6px 14px rgba(76, 132, 238, 0.28) !important;
+}
+
+button.primary-btn.add-rota-btn:hover {
+  background: #2563eb !important;
+  transform: translateY(-1px);
+}
+
+button.primary-btn.add-rota-btn .material-icons {
+  color: #ffffff !important;
+  font-size: 22px !important;
+}

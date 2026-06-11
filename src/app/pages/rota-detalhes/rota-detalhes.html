@@ -11,6 +11,7 @@
       (click)="abrirModalDemandas()"
     >
       <span class="material-icons">playlist_add</span>
+      <span>Adicionar<br />demandas</span>
     </button>
   </aside>
 
@@ -85,6 +86,7 @@
         <div class="rota-info-grid">
           <div class="rota-info-item">
             <span class="material-icons">event</span>
+
             <div>
               <label>Data de execução</label>
               <strong>{{ rota.dataExecucao | date:'dd/MM/yyyy' }}</strong>
@@ -93,6 +95,7 @@
 
           <div class="rota-info-item">
             <span class="material-icons">engineering</span>
+
             <div>
               <label>Executor</label>
               <strong>{{ rota.executor?.nome }}</strong>
@@ -101,17 +104,21 @@
 
           <div class="rota-info-item">
             <span class="material-icons">directions_car</span>
+
             <div>
               <label>Veículo</label>
+
               <strong *ngIf="rota.veiculo">
                 {{ rota.veiculo?.marcaVeiculo }} {{ rota.veiculo?.modeloVeiculo }}
               </strong>
+
               <strong *ngIf="!rota.veiculo">Não definido</strong>
             </div>
           </div>
 
           <div class="rota-info-item">
             <span class="material-icons">speed</span>
+
             <div>
               <label>KM inicial</label>
               <strong>{{ rota.kmInicial || 'Não informado' }}</strong>
@@ -120,6 +127,7 @@
 
           <div class="rota-info-item" *ngIf="rota.kmFinal">
             <span class="material-icons">flag</span>
+
             <div>
               <label>KM final</label>
               <strong>{{ rota.kmFinal }}</strong>
@@ -139,8 +147,10 @@
           </div>
 
           <div class="metricas-rota">
+
             <div class="metrica-card">
               <span class="material-icons">straighten</span>
+
               <div>
                 <label>Distância estimada</label>
                 <strong>
@@ -151,6 +161,7 @@
 
             <div class="metrica-card">
               <span class="material-icons">schedule</span>
+
               <div>
                 <label>Tempo estimado</label>
                 <strong>
@@ -161,29 +172,36 @@
 
             <div class="metrica-card">
               <span class="material-icons">format_list_numbered</span>
+
               <div>
                 <label>Demandas</label>
                 <strong>{{ demandasDaRota.length }}</strong>
               </div>
             </div>
+
           </div>
 
           <div class="empty-state" *ngIf="demandasDaRota.length === 0">
             <span class="material-icons">playlist_add</span>
+
             <h3>Nenhuma demanda adicionada</h3>
             <p>Adicione demandas pendentes sem sair desta rota.</p>
 
             <button
-              class="primary-btn"
+              type="button"
+              class="empty-add-btn"
               *ngIf="podeAlterarDemandas()"
               (click)="abrirModalDemandas()"
             >
               <span class="material-icons">playlist_add</span>
-              Adicionar Demandas
+              Adicionar demandas
             </button>
           </div>
 
-          <div class="demanda-card" *ngFor="let item of demandasDaRota; let i = index">
+          <div
+            class="demanda-card"
+            *ngFor="let item of demandasDaRota; let i = index"
+          >
 
             <div class="ordem">
               {{ item.ordem }}

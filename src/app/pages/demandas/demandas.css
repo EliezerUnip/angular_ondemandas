@@ -785,3 +785,44 @@
   }
 
 }
+
+.route-btn {
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 22px;
+
+  background: #4c84ee;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  box-shadow: 0 6px 14px rgba(76, 132, 238, 0.28);
+  transition: 0.2s ease;
+}
+
+.route-btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.route-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.route-btn .material-icons {
+  font-size: 22px;
+  color: inherit;
+}
