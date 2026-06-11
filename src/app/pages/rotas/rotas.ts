@@ -31,6 +31,10 @@ export class Rotas implements OnInit {
   usuarioLogado: UsuarioLogado | null = null;
   rotas: any[] = [];
 
+  rotasFiltradas: any[] = [];
+  termoBuscaRotas = '';
+  statusFiltro = 'TODOS';
+
   modalCriarAberto = false;
 
   novaRota: RotaRequest = {
@@ -69,6 +73,7 @@ export class Rotas implements OnInit {
       this.rotasService.listar().subscribe({
         next: (dados) => {
           this.rotas = dados;
+          this.aplicarFiltrosRotas();
           this.cdr.detectChanges();
         },
         error: () => {
@@ -82,6 +87,7 @@ export class Rotas implements OnInit {
     this.rotasService.listarPorExecutor(this.usuarioLogado.id).subscribe({
       next: (dados) => {
         this.rotas = dados;
+        this.aplicarFiltrosRotas();
         this.cdr.detectChanges();
       },
       error: () => {
@@ -159,5 +165,42 @@ export class Rotas implements OnInit {
       default:
         return status;
     }
+  }
+
+  aplicarFiltrosRotas(): void {
+    const busca = this.termoBuscaRotas.trim().toLowerCase();
+
+    let lista = [...this.rotas];
+
+    if (this.statusFiltro !== 'TODOS') {
+      lista = lista.filter((rota) => rota.status === this.statusFiltro);
+    }
+
+    if (busca) {
+      lista = lista.filter((rota) => {
+        const nome = rota.nomeRota?.toLowerCase() || '';
+        const descricao = rota.descricaoRota?.toLowerCase() || '';
+        const executor = rota.executor?.nome?.toLowerCase() || '';
+        const veiculo = rota.veiculo?.modeloVeiculo?.toLowerCase() || '';
+        const status = this.textoStatus(rota.status).toLowerCase();
+
+        return (
+          nome.includes(busca) ||
+          descricao.includes(busca) ||
+          executor.includes(busca) ||
+          veiculo.includes(busca) ||
+          status.includes(busca)
+        );
+      });
+    }
+
+    this.rotasFiltradas = lista;
+    this.cdr.detectChanges();
+  }
+
+  limparFiltrosRotas(): void {
+    this.termoBuscaRotas = '';
+    this.statusFiltro = 'TODOS';
+    this.aplicarFiltrosRotas();
   }
 }

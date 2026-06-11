@@ -102,8 +102,9 @@
 
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 55%;
+  grid-template-columns: minmax(420px, 1fr) minmax(520px, 55%);
   gap: 24px;
+  align-items: start;
 }
 
 .demandas-area {
@@ -115,6 +116,8 @@
   min-height: 620px;
   padding: 0;
   overflow: hidden;
+  position: sticky;
+  top: 28px;
 }
 
 #mapa-rota {
@@ -394,18 +397,232 @@
   }
 
 }
+
 .marker-number div {
-  width: 34px;
-  height: 34px;
-  background: #4c84ee;
-  color: white;
+  width: 46px;
+  height: 46px;
+
+  background: #2563eb;
+  color: #ffffff;
+
   border-radius: 50%;
-  border: 3px solid white;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  border: 4px solid #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  font-size: 18px;
+  font-weight: 900;
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+
+  transition: all 0.2s ease;
+}
+
+.ordem-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-btn {
+  width: 28px;
+  height: 24px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.order-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.concluir-btn {
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.concluir-btn:hover {
+  background: #15803d;
+  color: white;
+}
+
+.header-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+}
+
+.rota-header-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.rota-title-area h1 {
+  margin-top: 12px;
+}
+
+.rota-descricao {
+  max-width: 720px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.rota-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.rota-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.rota-info-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.rota-info-item .material-icons {
+  color: #4c84ee;
+}
+
+.rota-info-item label {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rota-info-item strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+.metricas-rota {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.metrica-card {
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.metrica-card .material-icons {
+  color: #4c84ee;
+}
+
+.metrica-card label {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.metrica-card strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+.demanda-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.ordem-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-btn {
+  width: 34px;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
   font-weight: 800;
+}
+
+.order-btn:hover:not(:disabled) {
+  background: #eef2ff;
+  color: #4c84ee;
+}
+
+.order-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.concluir-btn {
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.concluir-btn:hover {
+  background: #15803d;
+  color: white;
+}
+
+.status-pendente {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-andamento {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-concluida {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-cancelada {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 

@@ -56,6 +56,20 @@ export class RotasService {
     return this.http.delete<void>(`${this.api}/${rotaId}/demandas/${demandaId}`);
   }
 
+  moverDemandaParaCima(rotaId: number, demandaId: number): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/${rotaId}/demandas/${demandaId}/mover-cima`,
+      {}
+    );
+  }
+
+  moverDemandaParaBaixo(rotaId: number, demandaId: number): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/${rotaId}/demandas/${demandaId}/mover-baixo`,
+      {}
+    );
+  }
+
   iniciarRota(rotaId: number, dados: IniciarRotaRequest): Observable<any> {
     return this.http.put<any>(`${this.api}/${rotaId}/iniciar`, dados);
   }
@@ -72,5 +86,10 @@ export class RotasService {
     return this.http.put<any>(`${this.api}/${rotaId}/finalizar`, dados);
   }
 
-
+  concluirDemandaDaRota(rotaId: number, demandaId: number): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/${rotaId}/demandas/${demandaId}/concluir`,
+      {}
+    );
+  }
 }

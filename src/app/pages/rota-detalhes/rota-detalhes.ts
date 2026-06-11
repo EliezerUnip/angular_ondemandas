@@ -32,10 +32,13 @@ export class RotaDetalhes implements OnInit {
   rota: any = null;
   demandasDaRota: any[] = [];
 
+
+
   modalFinalizarAberto = false;
   kmFinalInformado: number | null = null;
 
   distanciaEstimadaKm: number | null = null;
+  tempoEstimadoMinutos: number | null = null;
 
   carregando = true;
   erroCarregamento = '';
@@ -227,6 +230,44 @@ export class RotaDetalhes implements OnInit {
     });
   }
 
+  moverDemandaParaCima(item: any): void {
+    if (!this.rota?.id || !item?.demanda?.id) return;
+
+    this.rotasService
+      .moverDemandaParaCima(this.rota.id, item.demanda.id)
+      .subscribe({
+        next: () => {
+          this.carregarDemandasDaRota(this.rota.id);
+
+          setTimeout(() => {
+            this.atualizarMapa();
+          }, 500);
+        },
+        error: () => {
+          alert('Erro ao mover demanda para cima');
+        },
+      });
+  }
+
+  moverDemandaParaBaixo(item: any): void {
+    if (!this.rota?.id || !item?.demanda?.id) return;
+
+    this.rotasService
+      .moverDemandaParaBaixo(this.rota.id, item.demanda.id)
+      .subscribe({
+        next: () => {
+          this.carregarDemandasDaRota(this.rota.id);
+
+          setTimeout(() => {
+            this.atualizarMapa();
+          }, 500);
+        },
+        error: () => {
+          alert('Erro ao mover demanda para baixo');
+        },
+      });
+  }
+
   abrirModalIniciar(): void {
     this.veiculoSelecionadoId = null;
     this.kmInicialInformado = null;
@@ -376,6 +417,22 @@ export class RotaDetalhes implements OnInit {
       return;
     }
 
+    const demandasNaoConcluidas = this.demandasDaRota.filter(
+      (item) => item.demanda?.status !== 'CONCLUIDA'
+    );
+
+    if (demandasNaoConcluidas.length > 0) {
+      const confirmar = confirm(
+        `Esta rota possui ${demandasNaoConcluidas.length} demanda(s) não concluída(s).\n\n` +
+        `Ao finalizar, essas demandas sairão da rota e voltarão como pendentes para outros executores.\n\n` +
+        `Deseja continuar mesmo assim?`
+      );
+
+      if (!confirmar) {
+        return;
+      }
+    }
+
     this.rotasService
       .finalizarRota(this.rota.id, {
         kmFinal: this.kmFinalInformado,
@@ -384,6 +441,7 @@ export class RotaDetalhes implements OnInit {
         next: (rotaAtualizada) => {
           this.rota = rotaAtualizada;
           this.fecharModalFinalizar();
+          this.carregarDemandasDaRota(this.rota.id);
           alert('Rota finalizada com sucesso!');
           this.cdr.detectChanges();
         },
@@ -423,10 +481,15 @@ export class RotaDetalhes implements OnInit {
     }
 
     this.distanciaEstimadaKm = null;
+    this.tempoEstimadoMinutos = null;
 
     const pontos: L.LatLngExpression[] = [];
 
-    this.demandasDaRota.forEach((item) => {
+    const demandasParaRota = this.demandasDaRota.filter(
+      (item) => item.demanda?.status !== 'CONCLUIDA'
+    );
+
+    demandasParaRota.forEach((item, index) => {
       const local = item.demanda?.local;
 
       if (!local?.latitude || !local?.longitude) return;
@@ -439,22 +502,22 @@ export class RotaDetalhes implements OnInit {
       const ponto: L.LatLngExpression = [latitude, longitude];
       pontos.push(ponto);
 
-      const numero = item.ordem || pontos.length;
+      const numero = index + 1;
 
       const iconeNumerado = L.divIcon({
         className: 'marker-number',
         html: `<div>${numero}</div>`,
-        iconSize: [34, 34],
-        iconAnchor: [17, 34],
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
       });
 
       const marcador = L.marker(ponto, { icon: iconeNumerado })
         .addTo(this.mapa!)
         .bindPopup(`
-    <strong>${numero}. ${local.nomeLocal}</strong><br>
-    ${local.endereco || ''}<br>
-    ${local.cidade || ''}
-  `);
+        <strong>${numero}. ${local.nomeLocal}</strong><br>
+        ${local.endereco || ''}<br>
+        ${local.cidade || ''}
+      `);
 
       this.marcadores.push(marcador);
     });
@@ -492,7 +555,13 @@ export class RotaDetalhes implements OnInit {
         }
 
         this.distanciaEstimadaKm = dados.routes[0].distance / 1000;
+
+        this.tempoEstimadoMinutos =
+          Math.round(dados.routes[0].duration / 60);
         this.cdr.detectChanges();
+
+
+
 
         const coordenadasRota = dados.routes[0].geometry.coordinates.map(
           (coord: number[]) => [coord[1], coord[0]]
@@ -505,6 +574,27 @@ export class RotaDetalhes implements OnInit {
       })
       .catch(() => {
         this.linhaRota = L.polyline(pontos).addTo(this.mapa!);
+      });
+
+
+  }
+
+  concluirDemandaDaRota(item: any): void {
+    if (!this.rota?.id || !item?.demanda?.id) return;
+
+    const confirmar = confirm('Marcar esta demanda como concluída?');
+
+    if (!confirmar) return;
+
+    this.rotasService
+      .concluirDemandaDaRota(this.rota.id, item.demanda.id)
+      .subscribe({
+        next: () => {
+          this.carregarDemandasDaRota(this.rota.id);
+        },
+        error: () => {
+          alert('Erro ao concluir demanda');
+        },
       });
   }
 }

@@ -33,65 +33,100 @@
     <div *ngIf="rota">
 
       <section class="header-card">
-        <div>
-          <h1>{{ rota.nomeRota }}</h1>
 
-          <p>
-            <span class="material-icons">event</span>
-            {{ rota.dataExecucao | date:'dd/MM/yyyy' }}
-          </p>
+        <div class="rota-header-main">
+          <div class="rota-title-area">
+            <span class="status-badge">
+              {{ textoStatusRota(rota.status) }}
+            </span>
 
-          <p>
-            <span class="material-icons">engineering</span>
-            Executor: {{ rota.executor?.nome }}
-          </p>
+            <h1>{{ rota.nomeRota }}</h1>
 
-          <p *ngIf="rota.veiculo">
-            <span class="material-icons">directions_car</span>
-            Veículo: {{ rota.veiculo?.marcaVeiculo }} {{ rota.veiculo?.modeloVeiculo }}
-          </p>
+            <p class="rota-descricao" *ngIf="rota.descricaoRota">
+              {{ rota.descricaoRota }}
+            </p>
+          </div>
 
-          <p *ngIf="rota.kmInicial">
-            <span class="material-icons">speed</span>
-            KM inicial: {{ rota.kmInicial }}
-          </p>
+          <div class="rota-actions">
+            <button
+              class="primary-btn"
+              *ngIf="rota.status === 'PROGRAMADA'"
+              (click)="abrirModalIniciar()"
+            >
+              Iniciar
+            </button>
+
+            <button
+              class="secondary-btn"
+              *ngIf="rota.status === 'EM_ANDAMENTO'"
+              (click)="pausarRota()"
+            >
+              Pausar
+            </button>
+
+            <button
+              class="primary-btn"
+              *ngIf="rota.status === 'PAUSADA'"
+              (click)="retomarRota()"
+            >
+              Retomar
+            </button>
+
+            <button
+              class="primary-btn"
+              *ngIf="rota.status === 'EM_ANDAMENTO'"
+              (click)="abrirModalFinalizar()"
+            >
+              Finalizar
+            </button>
+          </div>
         </div>
 
-        <div>
-          <h1>{{ rota.nomeRota }}</h1>
-
-          <p>
+        <div class="rota-info-grid">
+          <div class="rota-info-item">
             <span class="material-icons">event</span>
-            {{ rota.dataExecucao | date:'dd/MM/yyyy' }}
-          </p>
+            <div>
+              <label>Data de execução</label>
+              <strong>{{ rota.dataExecucao | date:'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
 
-          <p>
+          <div class="rota-info-item">
             <span class="material-icons">engineering</span>
-            Executor: {{ rota.executor?.nome }}
-          </p>
+            <div>
+              <label>Executor</label>
+              <strong>{{ rota.executor?.nome }}</strong>
+            </div>
+          </div>
 
-          <p *ngIf="rota.veiculo">
+          <div class="rota-info-item">
             <span class="material-icons">directions_car</span>
-            Veículo: {{ rota.veiculo?.marcaVeiculo }}
-            {{ rota.veiculo?.modeloVeiculo }}
-          </p>
+            <div>
+              <label>Veículo</label>
+              <strong *ngIf="rota.veiculo">
+                {{ rota.veiculo?.marcaVeiculo }} {{ rota.veiculo?.modeloVeiculo }}
+              </strong>
+              <strong *ngIf="!rota.veiculo">Não definido</strong>
+            </div>
+          </div>
 
-          <p *ngIf="rota.kmInicial">
+          <div class="rota-info-item">
             <span class="material-icons">speed</span>
-            KM inicial: {{ rota.kmInicial }}
-          </p>
+            <div>
+              <label>KM inicial</label>
+              <strong>{{ rota.kmInicial || 'Não informado' }}</strong>
+            </div>
+          </div>
 
-          <p *ngIf="rota.kmFinal">
-            <span class="material-icons">speed</span>
-            KM final: {{ rota.kmFinal }}
-          </p>
-
-          <p *ngIf="distanciaEstimadaKm !== null">
-            <span class="material-icons">straighten</span>
-            Distância estimada:
-            {{ distanciaEstimadaKm | number:'1.1-1' }} km
-          </p>
+          <div class="rota-info-item" *ngIf="rota.kmFinal">
+            <span class="material-icons">flag</span>
+            <div>
+              <label>KM final</label>
+              <strong>{{ rota.kmFinal }}</strong>
+            </div>
+          </div>
         </div>
+
       </section>
 
       <section class="content-grid">
@@ -101,6 +136,36 @@
           <div class="section-title">
             <span class="material-icons">assignment</span>
             <h2>Demandas da rota</h2>
+          </div>
+
+          <div class="metricas-rota">
+            <div class="metrica-card">
+              <span class="material-icons">straighten</span>
+              <div>
+                <label>Distância estimada</label>
+                <strong>
+                  {{ distanciaEstimadaKm !== null ? (distanciaEstimadaKm | number:'1.1-1') + ' km' : 'Calculando...' }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="metrica-card">
+              <span class="material-icons">schedule</span>
+              <div>
+                <label>Tempo estimado</label>
+                <strong>
+                  {{ tempoEstimadoMinutos !== null ? tempoEstimadoMinutos + ' min' : 'Calculando...' }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="metrica-card">
+              <span class="material-icons">format_list_numbered</span>
+              <div>
+                <label>Demandas</label>
+                <strong>{{ demandasDaRota.length }}</strong>
+              </div>
+            </div>
           </div>
 
           <div class="empty-state" *ngIf="demandasDaRota.length === 0">
@@ -118,10 +183,8 @@
             </button>
           </div>
 
-          <div
-            class="demanda-card"
-            *ngFor="let item of demandasDaRota"
-          >
+          <div class="demanda-card" *ngFor="let item of demandasDaRota; let i = index">
+
             <div class="ordem">
               {{ item.ordem }}
             </div>
@@ -144,18 +207,61 @@
                 Solicitante: {{ item.demanda.solicitante.nome }}
               </p>
 
-              <span class="status-demanda">
+              <span
+                class="status-demanda"
+                [ngClass]="{
+                  'status-pendente': item.demanda.status === 'PENDENTE',
+                  'status-andamento': item.demanda.status === 'EM_ANDAMENTO',
+                  'status-concluida': item.demanda.status === 'CONCLUIDA',
+                  'status-cancelada': item.demanda.status === 'CANCELADA'
+                }"
+              >
                 {{ textoStatusDemanda(item.demanda.status) }}
               </span>
             </div>
 
-            <button
-              class="remove-btn"
-              *ngIf="podeAlterarDemandas()"
-              (click)="removerDemanda(item)"
-            >
-              <span class="material-icons">close</span>
-            </button>
+            <div class="demanda-actions">
+
+              <div class="ordem-actions" *ngIf="podeAlterarDemandas()">
+                <button
+                  type="button"
+                  class="order-btn"
+                  (click)="moverDemandaParaCima(item)"
+                  [disabled]="i === 0"
+                >
+                  ↑
+                </button>
+
+                <button
+                  type="button"
+                  class="order-btn"
+                  (click)="moverDemandaParaBaixo(item)"
+                  [disabled]="i === demandasDaRota.length - 1"
+                >
+                  ↓
+                </button>
+              </div>
+
+              <button
+                type="button"
+                class="concluir-btn"
+                *ngIf="item.demanda.status !== 'CONCLUIDA'"
+                (click)="concluirDemandaDaRota(item)"
+              >
+                Concluir
+              </button>
+
+              <button
+                type="button"
+                class="remove-btn"
+                *ngIf="podeAlterarDemandas()"
+                (click)="removerDemanda(item)"
+              >
+                <span class="material-icons">close</span>
+              </button>
+
+            </div>
+
           </div>
 
         </div>
@@ -298,7 +404,15 @@
               {{ demanda.solicitante.nome }}
             </p>
 
-            <span class="status-demanda">
+            <span
+              class="status-demanda"
+              [ngClass]="{
+                'status-pendente': demanda.status === 'PENDENTE',
+                'status-andamento': demanda.status === 'EM_ANDAMENTO',
+                'status-concluida': demanda.status === 'CONCLUIDA',
+                'status-cancelada': demanda.status === 'CANCELADA'
+              }"
+            >
               {{ textoStatusDemanda(demanda.status) }}
             </span>
           </div>
