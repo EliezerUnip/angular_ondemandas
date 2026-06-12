@@ -1,4 +1,20 @@
-<div class="rota-detalhes-page">
+<<div
+  class="rota-detalhes-page"
+  [class.rota-em-andamento]="rota?.status === 'EM_ANDAMENTO'"
+>
+
+  <div
+    class="toast-message"
+    *ngIf="mensagemSistema"
+    [class.toast-success]="tipoMensagem === 'sucesso'"
+    [class.toast-error]="tipoMensagem === 'erro'"
+  >
+  <span class="material-icons">
+    {{ tipoMensagem === 'sucesso' ? 'check_circle' : 'error' }}
+  </span>
+
+    {{ mensagemSistema }}
+  </div>
 
   <aside class="left-bar">
     <button class="home-button" (click)="irParaRotas()">

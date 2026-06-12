@@ -229,19 +229,40 @@ export class Locais implements OnInit {
     }
 
     try {
-      const consulta = `${this.novoLocal.endereco}, ${this.novoLocal.cidade}, Brasil`;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(consulta)}`;
+      const enderecoOriginal = this.novoLocal.endereco || '';
+      const cidade = this.novoLocal.cidade || '';
 
-      const resposta = await fetch(url);
-      const dados = await resposta.json();
+      const enderecoNormalizado = this.normalizarEndereco(enderecoOriginal);
 
-      if (!dados || dados.length === 0) {
-        this.exibirMensagem('Endereço não encontrado no mapa.', 'erro');
+      const tentativas = [
+        `${enderecoNormalizado}, ${cidade}, PR, Brasil`,
+        `${enderecoNormalizado}, ${cidade}, Paraná, Brasil`,
+        `${enderecoNormalizado}, Brasil`,
+        `${enderecoNormalizado}`,
+        `${cidade}, PR, Brasil`,
+      ];
+
+      let resultadoEncontrado: any = null;
+
+      for (const consulta of tentativas) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(consulta)}`;
+
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+
+        if (dados && dados.length > 0) {
+          resultadoEncontrado = dados[0];
+          break;
+        }
+      }
+
+      if (!resultadoEncontrado) {
+        this.exibirMensagem('Endereço não encontrado no mapa. Tente escrever o nome da rua por extenso.', 'erro');
         return;
       }
 
-      const latitude = Number(Number(dados[0].lat).toFixed(6));
-      const longitude = Number(Number(dados[0].lon).toFixed(6));
+      const latitude = Number(Number(resultadoEncontrado.lat).toFixed(6));
+      const longitude = Number(Number(resultadoEncontrado.lon).toFixed(6));
 
       this.novoLocal.latitude = latitude;
       this.novoLocal.longitude = longitude;
@@ -249,9 +270,28 @@ export class Locais implements OnInit {
       this.atualizarMarcador(latitude, longitude);
       this.exibirMensagem('Coordenadas encontradas pelo endereço.', 'sucesso');
       this.cdr.detectChanges();
-    } catch {
+    } catch (erro) {
+      console.error('Erro ao buscar endereço:', erro);
       this.exibirMensagem('Erro ao buscar coordenadas pelo endereço.', 'erro');
     }
+  }
+
+  normalizarEndereco(endereco: string): string {
+    return endereco
+      .replace(/\bAv\.\s*/gi, 'Avenida ')
+      .replace(/\bAv\s+/gi, 'Avenida ')
+      .replace(/\bMin\.\s*/gi, 'Ministro ')
+      .replace(/\bMin\s+/gi, 'Ministro ')
+      .replace(/\bMal\.\s*/gi, 'Marechal ')
+      .replace(/\bMal\s+/gi, 'Marechal ')
+      .replace(/\bR\.\s*/gi, 'Rua ')
+      .replace(/\bR\s+/gi, 'Rua ')
+      .replace(/\bRod\.\s*/gi, 'Rodovia ')
+      .replace(/\bRod\s+/gi, 'Rodovia ')
+      .replace(/\bS\/N\b/gi, '')
+      .replace(/\s-\s/g, ', ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   abrirModalDetalhes(local: Local): void {

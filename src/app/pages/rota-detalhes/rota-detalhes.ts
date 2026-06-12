@@ -43,6 +43,12 @@ export class RotaDetalhes implements OnInit {
   carregando = true;
   erroCarregamento = '';
 
+  mensagemSistema = '';
+  tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
+  private timeoutMensagem: any;
+
+
+
   veiculos: Veiculo[] = [];
 
   modalIniciarAberto = false;
@@ -307,11 +313,11 @@ export class RotaDetalhes implements OnInit {
         next: (rotaAtualizada) => {
           this.rota = rotaAtualizada;
           this.fecharModalIniciar();
-          alert('Rota iniciada com sucesso!');
+          this.exibirMensagem('Rota iniciada com sucesso!', 'sucesso');
           this.cdr.detectChanges();
         },
         error: () => {
-          alert('Erro ao iniciar rota');
+          this.exibirMensagem('Erro ao iniciar rota.', 'erro');
         },
       });
   }
@@ -363,11 +369,11 @@ export class RotaDetalhes implements OnInit {
     this.rotasService.pausarRota(this.rota.id).subscribe({
       next: (rotaAtualizada) => {
         this.rota = rotaAtualizada;
-        alert('Rota pausada com sucesso!');
+        this.exibirMensagem('Rota pausada com sucesso!', 'sucesso');
         this.cdr.detectChanges();
       },
       error: () => {
-        alert('Erro ao pausar rota');
+        this.exibirMensagem('Erro ao pausar rota.', 'erro');
       },
     });
   }
@@ -381,11 +387,11 @@ export class RotaDetalhes implements OnInit {
     this.rotasService.retomarRota(this.rota.id).subscribe({
       next: (rotaAtualizada) => {
         this.rota = rotaAtualizada;
-        alert('Rota retomada com sucesso!');
+        this.exibirMensagem('Rota retomada com sucesso!', 'sucesso');
         this.cdr.detectChanges();
       },
       error: () => {
-        alert('Erro ao retomar rota');
+        this.exibirMensagem('Erro ao retomar rota.', 'erro');
       },
     });
   }
@@ -442,11 +448,11 @@ export class RotaDetalhes implements OnInit {
           this.rota = rotaAtualizada;
           this.fecharModalFinalizar();
           this.carregarDemandasDaRota(this.rota.id);
-          alert('Rota finalizada com sucesso!');
+          this.exibirMensagem('Rota finalizada com sucesso!', 'sucesso');
           this.cdr.detectChanges();
         },
         error: () => {
-          alert('Erro ao finalizar rota');
+          this.exibirMensagem('Erro ao finalizar rota.', 'erro');
         },
       });
   }
@@ -582,19 +588,35 @@ export class RotaDetalhes implements OnInit {
   concluirDemandaDaRota(item: any): void {
     if (!this.rota?.id || !item?.demanda?.id) return;
 
-    const confirmar = confirm('Marcar esta demanda como concluída?');
-
-    if (!confirmar) return;
-
     this.rotasService
       .concluirDemandaDaRota(this.rota.id, item.demanda.id)
       .subscribe({
         next: () => {
           this.carregarDemandasDaRota(this.rota.id);
+          this.exibirMensagem('Demanda concluída com sucesso!', 'sucesso');
         },
         error: () => {
-          alert('Erro ao concluir demanda');
+          this.exibirMensagem('Erro ao concluir demanda.', 'erro');
         },
       });
+  }
+
+  private exibirMensagem(
+    mensagem: string,
+    tipo: 'sucesso' | 'erro' = 'sucesso'
+  ): void {
+    this.mensagemSistema = mensagem;
+    this.tipoMensagem = tipo;
+
+    if (this.timeoutMensagem) {
+      clearTimeout(this.timeoutMensagem);
+    }
+
+    this.timeoutMensagem = setTimeout(() => {
+      this.mensagemSistema = '';
+      this.cdr.detectChanges();
+    }, 2500);
+
+    this.cdr.detectChanges();
   }
 }
